@@ -49,7 +49,7 @@ type
     ebPassword1:     TEditButton;
     ebPassword2:     TEditButton;
     gbMain:          TGroupBox;
-    cbRequirements:  TGroupBox;
+    gbRequirements:  TGroupBox;
     gbButtons:       TGroupBox;
     Label2:          TLabel;
     Label3:          TLabel;
@@ -63,6 +63,7 @@ type
     procedure btnToClipClick( Sender: TObject );
     procedure ebPassword1ButtonClick( Sender: TObject );
     procedure ebPassword2ButtonClick( Sender: TObject );
+    procedure FormDblClick(Sender: TObject);
     procedure seLengthChange( Sender: TObject );
 
     procedure FormCreate( Sender: TObject );
@@ -112,7 +113,7 @@ type
 
 
     // Read only properties to return Results
-    property Password:              string  read FPassword;
+    property HashedPassword:        string  read FPassword;
     property RequirePasswordChange: boolean read FRequireChange;
   end;
 
@@ -128,7 +129,7 @@ const
   UC_ALPHA    = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   LC_ALPHA    = 'abcdefghijklmnopqrstuvwxyz';
   NUMBERS     = '0123456789';
-  SIMILAR     = 'oO0il1';
+  SIMILAR     = 'o0Oil|1';
   AMBIGUOUS   = ' +-~,;:.{}<>[]()/\''`"';
 
 { TPasswordChangeDialog }
@@ -361,11 +362,10 @@ end;
 |==============================================================================}
 procedure TPasswordChangeDialog.ebPassword1ButtonClick( Sender: TObject );
 begin
-  case ebPassword1.EchoMode of
-    emPassword: ebPassword1.EchoMode := emNormal;
-    emNormal: ebPassword1.EchoMode   := emNone;
-    emNone: ebPassword1.EchoMode     := emPassword;
-  end;
+  if ebPassword1.PasswordChar <> #0 then
+    ebPassword1.PasswordChar := #0
+  else
+    ebPassword1.PasswordChar := '#';
 end;
 
 {==============================================================================|
@@ -373,11 +373,31 @@ end;
 |==============================================================================}
 procedure TPasswordChangeDialog.ebPassword2ButtonClick( Sender: TObject );
 begin
-  case ebPassword2.EchoMode of
-    emPassword: ebPassword2.EchoMode := emNormal;
-    emNormal: ebPassword2.EchoMode   := emNone;
-    emNone: ebPassword2.EchoMode     := emPassword;
+  if ebPassword2.PasswordChar <> #0 then
+    ebPassword2.PasswordChar := #0
+  else
+    ebPassword2.PasswordChar := '#';
+end;
+
+{==============================================================================|
+| FormDblClick: Toggle Between Password Reset and Password Change mode         |
+|==============================================================================}
+procedure TPasswordChangeDialog.FormDblClick(Sender: TObject);
+begin
+  gbRequirements.Visible := not gbRequirements.Visible;
+  gbRequirements.Enabled := gbRequirements.Visible;
+  gbButtons.Visible      := gbRequirements.Visible;
+  gbButtons.Enabled      := gbRequirements.Visible;
+
+  if gbRequirements.Visible then begin
+    PasswordChangeDialog.Height := gbMain.Height + gbRequirements.Height + StatusBar1.Height + 8;
+    PasswordChangeDialog.Width  := 830;
+  end else begin
+    PasswordChangeDialog.Height := gbMain.Height + StatusBar1.Height + bbCancel.Height + 16;
+    PasswordChangeDialog.Width  := (gbRequirements.Left * 2 ) + gbRequirements.Width + 100;
   end;
+  ebPassword1.Width := PasswordChangeDialog.Width - (ebPassword1.Left+19);
+  ebPassword2.Width := ebPassword1.Width;
 end;
 
 {==============================================================================|

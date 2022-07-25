@@ -11,7 +11,10 @@
    
 Usage: 
 ```Pascal
- procedure ResetPassword(var NewPassword: string; var RequireReset: boolean);
+ function ResetPassword(
+   const UserID: string;
+   out   NewPassword: string;
+   out   RequireReset: boolean);
  
  begin
    PasswordChangeDialog := TPasswordChangeDialog.Create( Nil );
@@ -41,3 +44,19 @@ Usage:
   end;
 end;
 ```
+
+Explanation of Parameters
+
+-Caption
+   Caption from Lazarus TForm object
+   
+-Iterations
+-Salt
+-MinLength
+-MaxLength
+-AlphaUpperCase
+-AlphaLowerCase
+-Numerals
+-SpecialCharacters
+-ExcludeSimilar
+-ExcludeAmbiguous

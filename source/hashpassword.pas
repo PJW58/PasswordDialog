@@ -44,9 +44,14 @@ var
   PBKDF2_HMACInstance: IPBKDF2_HMAC;
 
 begin
-  BytePassword := TConverters.ConvertStringToBytes( Password, TEncoding.UTF8 );
   ByteSalt     := TConverters.ConvertStringToBytes( UserID,   TEncoding.UTF8 );
-  PBKDF2_HMACInstance := TKDF.TPBKDF2_HMAC.CreatePBKDF2_HMAC(THashFactory.TCrypto.CreateSHA2_512(), BytePassword, ByteSalt, Iterations);
+  BytePassword := TConverters.ConvertStringToBytes( Password, TEncoding.UTF8 );
+  PBKDF2_HMACInstance := TKDF.TPBKDF2_HMAC.CreatePBKDF2_HMAC(
+    THashFactory.TCrypto.CreateSHA2_512(),
+    BytePassword,
+    ByteSalt,
+    Iterations);
+
   Result := TConverters.ConvertBytesToHexString(PBKDF2_HMACInstance.GetBytes(64), False);
 end;
 
