@@ -22,7 +22,7 @@ uses
   EditBtn,                // (LCL) Edit Button Control
   Graphics,               // (LCL) Graphic Controls
   StdCtrls,               // (LCL) Standard Controls
-  Spin,                   // (LCL) Spin Control
+  Spin, ExtCtrls,                   // (LCL) Spin Control
   {============================================================================|
   | Our Stuff                                                                  |
   |============================================================================}
@@ -37,24 +37,24 @@ type
   TPasswordChangeDialog = class( TForm )
     bbCancel:        TBitBtn;
     bbOK:            TBitBtn;
-    btnGenerate:     TButton;
-    btnToClip:       TButton;
-    cbLowerCase:     TCheckBox;
-    cbUpperCase:     TCheckBox;
-    cbNumerals:      TCheckBox;
-    cbSpecial:       TCheckBox;
-    cbSimilar:       TCheckBox;
-    cbAmbiguous:     TCheckBox;
+    btnGenerate: TButton;
+    btnToClip: TButton;
+    cbAmbiguous: TCheckBox;
+    cbLowerCase: TCheckBox;
+    cbNumerals: TCheckBox;
     cbRequireChange: TCheckBox;
-    ebPassword1:     TEditButton;
-    ebPassword2:     TEditButton;
-    gbMain:          TGroupBox;
-    gbRequirements:  TGroupBox;
-    gbButtons:       TGroupBox;
-    Label2:          TLabel;
-    Label3:          TLabel;
-    Label4:          TLabel;
-    seLength:        TSpinEdit;
+    cbSimilar: TCheckBox;
+    cbSpecial: TCheckBox;
+    cbUpperCase: TCheckBox;
+    ebPassword1: TEditButton;
+    ebPassword2: TEditButton;
+    panelButtons: TPanel;
+    panelMain: TPanel;
+    panelRequirements: TPanel;
+    lblPassword1: TLabel;
+    lblPassword2: TLabel;
+    lblLength: TLabel;
+    seLength: TSpinEdit;
     StatusBar1:      TStatusBar;
 
     procedure bbOKClick( Sender: TObject );
@@ -217,6 +217,18 @@ begin
   cbSimilar.Enabled   := ( FSimilar <> pws_required ) and ( FSimilar <> pws_notallowed );
   cbAmbiguous.Enabled := ( FAmbiguous <> pws_required ) and ( FAmbiguous <> pws_notallowed );
 
+  if not cbSimilar.Enabled then begin
+    cbSimilar.Visible := False;
+    panelRequirements.Height := panelRequirements.Height - cbSimilar.Height;
+  end;
+
+  if not cbAmbiguous.Enabled then begin
+    cbAmbiguous.Visible := False;
+    panelRequirements.Height := panelRequirements.Height - cbAmbiguous.Height;
+  end;
+
+  cbAmbiguous.Visible := cbAmbiguous.Enabled;
+
   cbLowerCase.State := pws2state( FLowerCase );
   cbUpperCase.State := pws2state( FUpperCase );
   cbNumerals.State  := pws2state( FNumerals );
@@ -225,6 +237,11 @@ begin
   cbAmbiguous.State := pws2state( FAmbiguous );
 
   cbRequireChange.Checked := FRequireChange;
+
+  PasswordChangeDialog.Height := panelMain.Height + panelRequirements.Height + StatusBar1.Height + 8;
+  PasswordChangeDialog.Width  := 830;
+  ebPassword1.Width := PasswordChangeDialog.Width - ( panelMain.Left + 195 );
+  ebPassword2.Width := ebPassword1.Width;
 end;
 
 {==============================================================================|
@@ -407,19 +424,20 @@ end;
 |==============================================================================}
 procedure TPasswordChangeDialog.FormDblClick( Sender: TObject );
 begin
-  gbRequirements.Visible := not gbRequirements.Visible;
-  gbRequirements.Enabled := gbRequirements.Visible;
-  gbButtons.Visible      := gbRequirements.Visible;
-  gbButtons.Enabled      := gbRequirements.Visible;
+  panelRequirements.Visible := not panelRequirements.Visible;
+  panelRequirements.Enabled := panelRequirements.Visible;
+  panelButtons.Visible      := panelRequirements.Visible;
+  panelButtons.Enabled      := panelRequirements.Visible;
 
-  if gbRequirements.Visible then begin
-    PasswordChangeDialog.Height := gbMain.Height + gbRequirements.Height + StatusBar1.Height + 8;
+  if panelRequirements.Visible then begin
+    PasswordChangeDialog.Height := panelMain.Height + panelRequirements.Height + StatusBar1.Height + 8;
     PasswordChangeDialog.Width  := 830;
   end else begin
-    PasswordChangeDialog.Height := gbMain.Height + StatusBar1.Height + bbCancel.Height + 16;
-    PasswordChangeDialog.Width  := ( gbRequirements.Left * 2 ) + gbRequirements.Width + 100;
+    PasswordChangeDialog.Height := panelMain.Height + StatusBar1.Height + bbCancel.Height + 16;
+    PasswordChangeDialog.Width  := ( panelRequirements.Left * 2 ) + panelRequirements.Width + 100;
   end;
-  ebPassword1.Width := PasswordChangeDialog.Width - ( ebPassword1.Left + 19 );
+
+  ebPassword1.Width := PasswordChangeDialog.Width - ( panelMain.Left + 195 );
   ebPassword2.Width := ebPassword1.Width;
 end;
 

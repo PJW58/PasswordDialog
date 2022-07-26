@@ -29,14 +29,14 @@ begin
     with PasswordChangeDialog do begin
       Caption           := 'Password Reset';
       Iterations        := 429937;       // Number of Iterations for Hash Routine
-      Salt              := 'TestID';     // Usually the UserID, but you can get creative...
-      MinLength         := 0;            // Minimum Password length
-      MaxLength         := 48;            // Maximum Password length
+      Salt              := 'MyUserID';   // Usually the UserID, but you can get creative...
+      MinLength         := 1;            // Minimum Password length
+      MaxLength         := 48;           // Maximum Password length
       AlphaUpperCase    := pws_yes;      // Should Upper Case characters be Allowed/Required
       AlphaLowerCase    := pws_yes;      // Should Lower Case characters be Allowed/Required
       Numerals          := pws_yes;      // Should Numeric characters be Allowed/Required
       SpecialCharacters := pws_allowed;  // Should Special characters be Allowed/Required
-      ExcludeSimilar    := pws_no;
+      ExcludeSimilar    := pws_required;
       ExcludeAmbiguous  := pws_required;
 
       if ShowModal = mrOK then begin
