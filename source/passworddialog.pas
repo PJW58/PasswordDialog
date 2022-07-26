@@ -39,8 +39,8 @@ type
   TPasswordChangeDialog = class( TForm )
     bbCancel:          TBitBtn;
     bbOK:              TBitBtn;
-    btnGenerate:       TButton;
-    btnToClip:         TButton;
+    bbGenerate:        TBitBtn;
+    bbToClip:          TBitBtn;
     ckAmbiguous:       TCheckBox;
     ckLowerCase:       TCheckBox;
     ckNumerals:        TCheckBox;
@@ -50,6 +50,7 @@ type
     ckUpperCase:       TCheckBox;
     ebPassword1:       TEditButton;
     ebPassword2:       TEditButton;
+    ImageList1:        TImageList;
     lblPassword1:      TLabel;
     lblPassword2:      TLabel;
     lblLength:         TLabel;
@@ -61,8 +62,8 @@ type
 
     procedure bbOKClick             ( Sender: TObject );
     procedure bbCancelClick         ( Sender: TObject );
-    procedure btnGenerateClick      ( Sender: TObject );
-    procedure btnToClipClick        ( Sender: TObject );
+    procedure bbGenerateClick       ( Sender: TObject );
+    procedure bbToClipClick         ( Sender: TObject );
     procedure ebPassword1ButtonClick( Sender: TObject );
     procedure ebPassword2ButtonClick( Sender: TObject );
     procedure FormDblClick          ( Sender: TObject );
@@ -77,9 +78,10 @@ type
   private
     FSalt:          string;   // Salt - Set before calling
     FPassword:      string;   // Encoded Password
-    FIterations:    integer;
-    FMinLength:     integer;
-    FMaxLength:     integer;
+    FIterations:    integer;  // Number if iterations for Hash
+    FMinLength:     integer;  // Minimum Password Length
+    FMaxLength:     integer;  // Maximum Password Length
+    FPwdLength:     integer;  // Requested Password Length
     FLowerCase:     TPasswordRequirement;
     FUpperCase:     TPasswordRequirement;
     FNumerals:      TPasswordRequirement;
@@ -93,6 +95,7 @@ type
     procedure SetSalt            ( aValue: string );
     procedure SetMinLength       ( aValue: integer );
     procedure SetMaxLength       ( aValue: integer );
+    procedure SetPwdLength       ( aValue: integer );
     procedure SetLowerCase       ( aValue: TPasswordRequirement );
     procedure SetUpperCase       ( aValue: TPasswordRequirement );
     procedure SetNumerals        ( aValue: TPasswordRequirement );
@@ -104,6 +107,7 @@ type
     // Write only properties to overide defaults
     property Salt:       string  write SetSalt;
     property Iterations: integer write FIterations;
+    property PwdLength:  integer write SetPwdLength;
     property MinLength:  integer write SetMinLength;
     property MaxLength:  integer write SetMaxLength;
     property AlphaUpperCase:     TPasswordRequirement write SetUpperCase;
@@ -156,6 +160,7 @@ begin
   FIterations    := 127873;       // Strengh of Hash
   FMinLength     := 8;            // Minimum length
   FMaxLength     := 64;           // Maximum length
+  FPwdLength     := -1;           // -1 signals use Min Length
   FLowerCase     := pws_yes;      // Require a lower case character
   FUpperCase     := pws_yes;      // Require an upper case character
   FNumerals      := pws_yes;      // Require a number
@@ -192,14 +197,15 @@ begin
     Close;
   end;
 
-  bbCancel.Enabled  := True;    // Can always Cancel
-  bbOK.Enabled      := False;   // Enabled once passwords are valid
-  btnToClip.Enabled := False;   // Enabled once passwords are valid
+  bbCancel.Enabled := True;    // Can always Cancel
+  bbOK.Enabled     := False;   // Enabled once passwords are valid
+  bbToClip.Enabled := False;   // Enabled once passwords are valid
 
   ebPassword1.Text      := '';
   ebPassword2.Text      := '';
   ebPassword1.MaxLength := FMaxLength;
   ebPassword2.MaxLength := FMaxLength;
+
 
   if FMaxLength = FMinLength then begin
     seLength.MinValue := 0;
@@ -210,13 +216,15 @@ begin
     seLength.MaxValue := FMaxLength;
     seLength.Enabled  := True;
   end;
-  seLength.Value := FMinLength;
+
+  if FPwdLength < 0 then FPwdLength := FMinLength;
+  seLength.Value := FPwdLength;
 
   ckLowerCase.Enabled := ( FLowerCase <> pws_required ) and ( FLowerCase <> pws_notallowed );
   ckUpperCase.Enabled := ( FUpperCase <> pws_required ) and ( FUpperCase <> pws_notallowed );
-  ckNumerals.Enabled  := ( FNumerals <> pws_required ) and ( FNumerals <> pws_notallowed );
-  ckSpecial.Enabled   := ( FSpecial <> pws_required ) and ( FSpecial <> pws_notallowed );
-  ckSimilar.Enabled   := ( FSimilar <> pws_required ) and ( FSimilar <> pws_notallowed );
+  ckNumerals.Enabled  := ( FNumerals  <> pws_required ) and ( FNumerals  <> pws_notallowed );
+  ckSpecial.Enabled   := ( FSpecial   <> pws_required ) and ( FSpecial   <> pws_notallowed );
+  ckSimilar.Enabled   := ( FSimilar   <> pws_required ) and ( FSimilar   <> pws_notallowed );
   ckAmbiguous.Enabled := ( FAmbiguous <> pws_required ) and ( FAmbiguous <> pws_notallowed );
 
   if not ckSimilar.Enabled then begin
@@ -241,7 +249,6 @@ begin
   cbRequireChange.Checked := FRequireChange;
 
   PasswordChangeDialog.Height := panelMain.Height + panelRequirements.Height + StatusBar1.Height + 8;
-  PasswordChangeDialog.Width  := 830;
   ebPassword1.Width           := PasswordChangeDialog.Width - ( panelMain.Left + 195 );
   ebPassword2.Width           := ebPassword1.Width;
 end;
@@ -275,7 +282,7 @@ end;
 |------------------------------------------------------------------------------|
 | Copies the password to the clipboard                                         |
 |==============================================================================}
-procedure TPasswordChangeDialog.btnToClipClick( Sender: TObject );
+procedure TPasswordChangeDialog.bbToClipClick( Sender: TObject );
 begin
   Clipboard.AsText := ebPassword1.Text;
 end;
@@ -288,8 +295,11 @@ end;
 |==============================================================================}
 procedure TPasswordChangeDialog.RequirementsChange( Sender: TObject );
 begin
-  bbOK.Enabled      := ValidatePassword( Sender );
-  btnToClip.Enabled := bbOK.Enabled;
+  bbOK.Enabled := ValidatePassword( Sender );
+  bbToClip.Enabled := bbOK.Enabled;
+  if bbToClip.Enabled
+    then bbToClip.ImageIndex := 0
+    else bbToClip.ImageIndex := 1;
 end;
 
 {==============================================================================|
@@ -310,14 +320,14 @@ begin
   ok     := ok and ( aValue.Length <= FMaxLength );
 
   // if "Required" make it's there!
-  if ( ckUpperCase.State = cbChecked ) then ok := ok and ( aValue.IndexOfAny( UC_ALPHA ) >= 0 );
-  if ( ckLowerCase.State = cbChecked ) then ok := ok and ( aValue.IndexOfAny( LC_ALPHA ) >= 0 );
-  if ( ckNumerals.State = cbChecked ) then ok := ok and ( aValue.IndexOfAny( NUMBERS ) >= 0 );
-  if ( ckSpecial.State = cbChecked ) then ok := ok and ( aValue.IndexOfAny( PUNCTUATION ) >= 0 );
+  if ( ckUpperCase.State = cbChecked ) then ok := ok and ( aValue.IndexOfAny( UC_ALPHA    ) >= 0 );
+  if ( ckLowerCase.State = cbChecked ) then ok := ok and ( aValue.IndexOfAny( LC_ALPHA    ) >= 0 );
+  if ( ckNumerals.State  = cbChecked ) then ok := ok and ( aValue.IndexOfAny( NUMBERS     ) >= 0 );
+  if ( ckSpecial.State   = cbChecked ) then ok := ok and ( aValue.IndexOfAny( PUNCTUATION ) >= 0 );
 
   // if it's excluded make sure it's NOT there
-  if ( ckSimilar.State = cbChecked ) then ok := ok and ( aValue.IndexOfAny( SIMILAR ) < 0 );
-  if ( ckAmbiguous.State = cbChecked ) then ok := ok and ( aValue.IndexOfAny( AMBIGUOUS ) < 0 );
+  if ( ckSimilar.State   = cbChecked ) then ok := ok and ( aValue.IndexOfAny( SIMILAR     ) < 0 );
+  if ( ckAmbiguous.State = cbChecked ) then ok := ok and ( aValue.IndexOfAny( AMBIGUOUS   ) < 0 );
 
   Result := ok;
 end;
@@ -325,42 +335,43 @@ end;
 {==============================================================================|
 | btnGenerateClick: Generate a password based on current settings              |
 |==============================================================================}
-procedure TPasswordChangeDialog.btnGenerateClick( Sender: TObject );
+procedure TPasswordChangeDialog.bbGenerateClick( Sender: TObject );
 
 var
   CH:        char;
   aPassword: string;
   Attempts:  integer;
+  aSize:     integer;
   ALPHABET:  string;
 
 begin
   ALPHABET := '';
   if ckLowerCase.State <> cbUnChecked then ALPHABET := ALPHABET + LC_ALPHA;
   if ckUpperCase.State <> cbUnChecked then ALPHABET := ALPHABET + UC_ALPHA;
-  if ckNumerals.State <> cbUnChecked then ALPHABET := ALPHABET + NUMBERS;
-  if ckSpecial.State <> cbUnChecked then ALPHABET := ALPHABET + PUNCTUATION;
+  if ckNumerals.State  <> cbUnChecked then ALPHABET := ALPHABET + NUMBERS;
+  if ckSpecial.State   <> cbUnChecked then ALPHABET := ALPHABET + PUNCTUATION;
 
   if ALPHABET = '' then begin
     QuestionDlg( Caption, ERR_NOTYPES, mtWarning, [mrOk], '' );
     exit;
   end;
 
-  Attempts := 0;
-  if ckLowerCase.State = cbChecked then Inc( Attempts );
-  if ckUpperCase.State = cbChecked then Inc( Attempts );
-  if ckNumerals.State = cbChecked then Inc( Attempts );
-  if ckSpecial.State = cbChecked then Inc( Attempts );
+  aSize := 0;
+  if ckLowerCase.State = cbChecked then Inc( aSize );
+  if ckUpperCase.State = cbChecked then Inc( aSize );
+  if ckNumerals.State  = cbChecked then Inc( aSize );
+  if ckSpecial.State   = cbChecked then Inc( aSize );
 
-  if Attempts > FMaxLength then begin
+  if aSize > FMaxLength then begin
     QuestionDlg( Caption, format( ERR_MAXTOSMALL, [FMaxLength] ), mtWarning, [mrCancel], '' );
     ebPassword1.Text := '';
     ebPassword2.Text := '';
     exit;
   end;
 
-  if Attempts > seLength.Value then seLength.Value := Attempts;
+  if aSize > seLength.Value then seLength.Value := aSize;
 
-  Attempts         := 0;
+  Attempts := 0;
   ebPassword1.Text := '';
   ebPassword1.Update;
   ebPassword2.Text := '';
@@ -371,7 +382,7 @@ begin
     // This should never happen because of the checks we do above
     // However, we'll put it here as a failsafe
     Inc( Attempts );
-    if ( Attempts > 65536 ) then begin
+    if ( Attempts > 65535 ) then begin
       Attempts := 0;
       if seLength.Value >= FMaxLength then begin
         if QuestionDlg( Caption, ERR_TOMUCHTIME + #13 + ERR_KEEPTRYING, mtWarning, [mrYes, mrNo], '' ) <> mrYes then begin
@@ -408,9 +419,9 @@ end;
 |==============================================================================}
 procedure TPasswordChangeDialog.ebPassword1ButtonClick( Sender: TObject );
 begin
-  if ebPassword1.PasswordChar <> #0 then ebPassword1.PasswordChar := #0
-  else
-    ebPassword1.PasswordChar := '#';
+  if ebPassword1.PasswordChar <> #0
+    then ebPassword1.PasswordChar := #0
+    else ebPassword1.PasswordChar := '#';
 end;
 
 {==============================================================================|
@@ -418,9 +429,9 @@ end;
 |==============================================================================}
 procedure TPasswordChangeDialog.ebPassword2ButtonClick( Sender: TObject );
 begin
-  if ebPassword2.PasswordChar <> #0 then ebPassword2.PasswordChar := #0
-  else
-    ebPassword2.PasswordChar := '#';
+  if ebPassword2.PasswordChar <> #0
+    then ebPassword2.PasswordChar := #0
+    else ebPassword2.PasswordChar := '#';
 end;
 
 {==============================================================================|
@@ -435,10 +446,8 @@ begin
 
   if panelRequirements.Visible then begin
     PasswordChangeDialog.Height := panelMain.Height + panelRequirements.Height + StatusBar1.Height + 8;
-    PasswordChangeDialog.Width  := 830;
   end else begin
     PasswordChangeDialog.Height := panelMain.Height + StatusBar1.Height + bbCancel.Height + 16;
-    PasswordChangeDialog.Width  := ( panelRequirements.Left * 2 ) + panelRequirements.Width + 100;
   end;
 
   ebPassword1.Width := PasswordChangeDialog.Width - ( panelMain.Left + 195 );
@@ -477,6 +486,14 @@ end;
 procedure TPasswordChangeDialog.SetMinLength( aValue: integer );
 begin
   FMinLength := aValue;
+end;
+
+{==============================================================================|
+| SetPwdLength: Update password minimum length from parent                     |
+|==============================================================================}
+procedure TPasswordChangeDialog.SetPwdLength( aValue: integer );
+begin
+  FPwdLength := aValue;
 end;
 
 {==============================================================================|

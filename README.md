@@ -7,7 +7,7 @@
  
  Third Party Libraries:
    Hash Library for Pascal - MIT License
-   
+   Some Icons from IconsDB.com - CC0 1.0 Universal Public Domain Dedication.
    
 Usage: 
 ```Pascal

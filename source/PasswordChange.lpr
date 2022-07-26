@@ -30,14 +30,15 @@ begin
       Caption           := 'Password Reset';
       Iterations        := 429937;       // Number of Iterations for Hash Routine
       Salt              := 'MyUserID';   // Usually the UserID, but you can get creative...
-      MinLength         := 1;            // Minimum Password length
-      MaxLength         := 48;           // Maximum Password length
-      AlphaUpperCase    := pws_yes;      // Should Upper Case characters be Allowed/Required
+      PwdLength         := 12;           // If not specified Default is Minumum Length
+      MinLength         := 1;            // Minimum Password length - Default 8
+      MaxLength         := 48;           // Maximum Password length - Default 64
+      AlphaUpperCase    := pws_required; // Should Upper Case characters be Allowed/Required
       AlphaLowerCase    := pws_yes;      // Should Lower Case characters be Allowed/Required
       Numerals          := pws_yes;      // Should Numeric characters be Allowed/Required
       SpecialCharacters := pws_allowed;  // Should Special characters be Allowed/Required
-      ExcludeSimilar    := pws_required; // Should we exclude characters that look very similar
-      ExcludeAmbiguous  := pws_required; // Should we exclude characters know to confuse some apps
+      ExcludeSimilar    := pws_yes;      // Should we exclude characters that look very similar
+      ExcludeAmbiguous  := pws_yes;      // Should we exclude characters know to confuse some apps
 
       if ShowModal = mrOK then begin
         showmessage(HashedPassword + #13 + BoolToStr(RequirePasswordChange));
