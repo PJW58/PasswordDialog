@@ -5,7 +5,7 @@ unit PasswordDialog;
 interface
 
 uses
- {============================================================================|
+  {============================================================================|
   | Units provided as part of the Compiler Runtime and Component Libraries     |
   |============================================================================}
   SysUtils,               // (RTL) System utilities unit
@@ -63,7 +63,7 @@ type
     procedure btnToClipClick( Sender: TObject );
     procedure ebPassword1ButtonClick( Sender: TObject );
     procedure ebPassword2ButtonClick( Sender: TObject );
-    procedure FormDblClick(Sender: TObject);
+    procedure FormDblClick( Sender: TObject );
     procedure seLengthChange( Sender: TObject );
 
     procedure FormCreate( Sender: TObject );
@@ -100,20 +100,20 @@ type
 
   public
     // Write only properties to overide defaults
-    property Iterations:        integer write FIterations;
-    property Salt:              string  write SetSalt;
-    property MinLength:         integer write SetMinLength;
-    property MaxLength:         integer write SetMaxLength;
-    property AlphaUpperCase:    TPasswordRequirement write SetUpperCase;
-    property AlphaLowerCase:    TPasswordRequirement write SetLowerCase;
-    property Numerals:          TPasswordRequirement write SetNumerals;
+    property Iterations: integer write FIterations;
+    property Salt: string write SetSalt;
+    property MinLength: integer write SetMinLength;
+    property MaxLength: integer write SetMaxLength;
+    property AlphaUpperCase: TPasswordRequirement write SetUpperCase;
+    property AlphaLowerCase: TPasswordRequirement write SetLowerCase;
+    property Numerals: TPasswordRequirement write SetNumerals;
     property SpecialCharacters: TPasswordRequirement write SetSpecial;
-    property ExcludeSimilar:    TPasswordRequirement write SetExcludeSimilar;
-    property ExcludeAmbiguous:  TPasswordRequirement write SetExcludeAmbiguous;
+    property ExcludeSimilar: TPasswordRequirement write SetExcludeSimilar;
+    property ExcludeAmbiguous: TPasswordRequirement write SetExcludeAmbiguous;
 
 
     // Read only properties to return Results
-    property HashedPassword:        string  read FPassword;
+    property HashedPassword: string read FPassword;
     property RequirePasswordChange: boolean read FRequireChange;
   end;
 
@@ -131,6 +131,13 @@ const
   NUMBERS     = '0123456789';
   SIMILAR     = 'o0Oil|1';
   AMBIGUOUS   = ' +-~,;:.{}<>[]()/\''`"';
+
+resourcestring
+  ERR_SALTREQUIRED = 'A Salt is required to generate a password';
+  ERR_NOTYPES      = 'No character types are allowed!';
+  ERR_MAXTOSMALL   = 'Maximum password length of %d is too small to accommodate the other requirements';
+  ERR_TOMUCHTIME   = 'It''s taking longer than expected to derive a password with these requirements';
+  ERR_KEEPTRYING   = 'Do you want me to keep trying?';
 
 { TPasswordChangeDialog }
 
@@ -176,7 +183,7 @@ procedure TPasswordChangeDialog.FormShow( Sender: TObject );
 
 begin
   if ( FSalt = '' ) then begin
-    QuestionDlg( Caption, 'A Salt is required to generate a password', mtError, [mrCancel], '' );
+    QuestionDlg( Caption, ERR_SALTREQUIRED, mtError, [mrCancel], '' );
     FRequireChange := False;
     FPassword      := '';
     ModalResult    := mrCancel;
@@ -192,9 +199,16 @@ begin
   ebPassword1.MaxLength := FMaxLength;
   ebPassword2.MaxLength := FMaxLength;
 
-  seLength.MinValue := FMinLength;
-  seLength.MaxValue := FMaxLength;
-  seLength.Value    := FMinLength;
+  if FMaxLength = FMinLength then begin
+    seLength.MinValue := 0;
+    seLength.MaxValue := 255;
+    seLength.Enabled  := False;
+  end else begin
+    seLength.MinValue := FMinLength;
+    seLength.MaxValue := FMaxLength;
+    seLength.Enabled  := True;
+  end;
+  seLength.Value := FMinLength;
 
   cbLowerCase.Enabled := ( FLowerCase <> pws_required ) and ( FLowerCase <> pws_notallowed );
   cbUpperCase.Enabled := ( FUpperCase <> pws_required ) and ( FUpperCase <> pws_notallowed );
@@ -277,20 +291,14 @@ begin
   ok     := ok and ( aValue.Length <= FMaxLength );
 
   // if "Required" make it's there!
-  if ( cbUpperCase.State = cbChecked ) then
-    ok := ok and ( aValue.IndexOfAny( UC_ALPHA ) >= 0 );
-  if ( cbLowerCase.State = cbChecked ) then
-    ok := ok and ( aValue.IndexOfAny( LC_ALPHA ) >= 0 );
-  if ( cbNumerals.State = cbChecked ) then
-    ok := ok and ( aValue.IndexOfAny( NUMBERS ) >= 0 );
-  if ( cbSpecial.State = cbChecked ) then
-    ok := ok and ( aValue.IndexOfAny( PUNCTUATION ) >= 0 );
+  if ( cbUpperCase.State = cbChecked ) then ok := ok and ( aValue.IndexOfAny( UC_ALPHA ) >= 0 );
+  if ( cbLowerCase.State = cbChecked ) then ok := ok and ( aValue.IndexOfAny( LC_ALPHA ) >= 0 );
+  if ( cbNumerals.State = cbChecked ) then ok := ok and ( aValue.IndexOfAny( NUMBERS ) >= 0 );
+  if ( cbSpecial.State = cbChecked ) then ok := ok and ( aValue.IndexOfAny( PUNCTUATION ) >= 0 );
 
   // if it's excluded make sure it's NOT there
-  if ( cbSimilar.State = cbChecked ) then
-    ok := ok and ( aValue.IndexOfAny( SIMILAR ) < 0 );
-  if ( cbAmbiguous.State = cbChecked ) then
-    ok := ok and ( aValue.IndexOfAny( AMBIGUOUS ) < 0 );
+  if ( cbSimilar.State = cbChecked ) then ok := ok and ( aValue.IndexOfAny( SIMILAR ) < 0 );
+  if ( cbAmbiguous.State = cbChecked ) then ok := ok and ( aValue.IndexOfAny( AMBIGUOUS ) < 0 );
 
   Result := ok;
 end;
@@ -308,43 +316,60 @@ var
 
 begin
   ALPHABET := '';
-  if cbLowerCase.State <> cbUnChecked then
-    ALPHABET := ALPHABET + LC_ALPHA;
-  if cbUpperCase.State <> cbUnChecked then
-    ALPHABET := ALPHABET + UC_ALPHA;
-  if cbNumerals.State <> cbUnChecked then
-    ALPHABET := ALPHABET + NUMBERS;
-  if cbSpecial.State <> cbUnChecked then
-    ALPHABET := ALPHABET + PUNCTUATION;
+  if cbLowerCase.State <> cbUnChecked then ALPHABET := ALPHABET + LC_ALPHA;
+  if cbUpperCase.State <> cbUnChecked then ALPHABET := ALPHABET + UC_ALPHA;
+  if cbNumerals.State <> cbUnChecked then ALPHABET := ALPHABET + NUMBERS;
+  if cbSpecial.State <> cbUnChecked then ALPHABET := ALPHABET + PUNCTUATION;
 
   if ALPHABET = '' then begin
-    QuestionDlg( Caption, 'No character type are allowed', mtWarning, [mrOk], '' );
+    QuestionDlg( Caption, ERR_NOTYPES, mtWarning, [mrOk], '' );
     exit;
   end;
 
-  Attempts         := 0;
-  ebPassword1.Text := '';
-  ebPassword1.Update;
-  ebPassword2.Text := '';
-  ebPassword2.Update;
+  Attempts := 0;
+  if cbLowerCase.State = cbChecked then Inc( Attempts );
+  if cbUpperCase.State = cbChecked then Inc( Attempts );
+  if cbNumerals.State = cbChecked then Inc( Attempts );
+  if cbSpecial.State = cbChecked then Inc( Attempts );
+
+  if Attempts > FMaxLength then begin
+    QuestionDlg( Caption, format( ERR_MAXTOSMALL, [FMaxLength] ), mtWarning, [mrCancel], '' );
+    ebPassword1.Text := '';
+    ebPassword2.Text := '';
+    exit;
+  end;
+
+  if Attempts > seLength.Value then seLength.Value := Attempts;
+
+  Attempts := 0;
+  ebPassword1.Text := ''; ebPassword1.Update;
+  ebPassword2.Text := ''; ebPassword2.Update;
   repeat
     // if we have not found a valid combination after a large
     // number of attempts the minimum length is to short.
+    // This should never happen because of the checks we do above
+    // However, we'll put it here as a failsafe
     Inc( Attempts );
-    if ( Attempts > 4096 ) then begin
-      seLength.Value := seLength.Value + 1;
-      seLength.Update;
+    if ( Attempts > 65536 ) then begin
       Attempts := 0;
+      if seLength.Value >= FMaxLength then begin
+        if QuestionDlg( Caption, ERR_TOMUCHTIME + #13 + ERR_KEEPTRYING, mtWarning, [mrYes, mrNo], '' ) <> mrYes then begin
+          ebPassword1.Text := '';
+          ebPassword2.Text := '';
+          exit;
+        end;
+      end else begin
+        seLength.Value := seLength.Value + 1;
+        seLength.Update;
+      end;
     end;
 
     // Build a password of the specified length
     aPassword := '';
     while aPassword.Length < seLength.Value do begin
       CH := ALPHABET[random( length( ALPHABET ) ) + 1];
-      if cbSimilar.Checked and ( Pos( CH, SIMILAR ) > 0 ) then
-        Continue;
-      if cbAmbiguous.Checked and ( Pos( CH, AMBIGUOUS ) > 0 ) then
-        Continue;
+      if cbSimilar.Checked and ( Pos( CH, SIMILAR ) > 0 ) then Continue;
+      if cbAmbiguous.Checked and ( Pos( CH, AMBIGUOUS ) > 0 ) then Continue;
       aPassword := aPassword + CH;
     end;
 
@@ -362,8 +387,7 @@ end;
 |==============================================================================}
 procedure TPasswordChangeDialog.ebPassword1ButtonClick( Sender: TObject );
 begin
-  if ebPassword1.PasswordChar <> #0 then
-    ebPassword1.PasswordChar := #0
+  if ebPassword1.PasswordChar <> #0 then ebPassword1.PasswordChar := #0
   else
     ebPassword1.PasswordChar := '#';
 end;
@@ -373,8 +397,7 @@ end;
 |==============================================================================}
 procedure TPasswordChangeDialog.ebPassword2ButtonClick( Sender: TObject );
 begin
-  if ebPassword2.PasswordChar <> #0 then
-    ebPassword2.PasswordChar := #0
+  if ebPassword2.PasswordChar <> #0 then ebPassword2.PasswordChar := #0
   else
     ebPassword2.PasswordChar := '#';
 end;
@@ -382,7 +405,7 @@ end;
 {==============================================================================|
 | FormDblClick: Toggle Between Password Reset and Password Change mode         |
 |==============================================================================}
-procedure TPasswordChangeDialog.FormDblClick(Sender: TObject);
+procedure TPasswordChangeDialog.FormDblClick( Sender: TObject );
 begin
   gbRequirements.Visible := not gbRequirements.Visible;
   gbRequirements.Enabled := gbRequirements.Visible;
@@ -394,9 +417,9 @@ begin
     PasswordChangeDialog.Width  := 830;
   end else begin
     PasswordChangeDialog.Height := gbMain.Height + StatusBar1.Height + bbCancel.Height + 16;
-    PasswordChangeDialog.Width  := (gbRequirements.Left * 2 ) + gbRequirements.Width + 100;
+    PasswordChangeDialog.Width  := ( gbRequirements.Left * 2 ) + gbRequirements.Width + 100;
   end;
-  ebPassword1.Width := PasswordChangeDialog.Width - (ebPassword1.Left+19);
+  ebPassword1.Width := PasswordChangeDialog.Width - ( ebPassword1.Left + 19 );
   ebPassword2.Width := ebPassword1.Width;
 end;
 

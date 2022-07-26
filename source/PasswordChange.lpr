@@ -30,8 +30,8 @@ begin
       Caption           := 'Password Reset';
       Iterations        := 429937;       // Number of Iterations for Hash Routine
       Salt              := 'TestID';     // Usually the UserID, but you can get creative...
-      MinLength         := 8;            // Minimum Password length
-      MaxLength         := 64;           // Maximum Password length
+      MinLength         := 0;            // Minimum Password length
+      MaxLength         := 48;            // Maximum Password length
       AlphaUpperCase    := pws_yes;      // Should Upper Case characters be Allowed/Required
       AlphaLowerCase    := pws_yes;      // Should Lower Case characters be Allowed/Required
       Numerals          := pws_yes;      // Should Numeric characters be Allowed/Required
