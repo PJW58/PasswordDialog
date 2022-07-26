@@ -24,7 +24,7 @@ begin
 
   PasswordChangeDialog := TPasswordChangeDialog.Create( nil );
   try
-    // All of the parameters except for UserId are optional
+    // All of the parameters except for Salt are optional
     // Each has a default, which may or may not suit your needs
     with PasswordChangeDialog do begin
       Caption           := 'Password Reset';
@@ -36,8 +36,8 @@ begin
       AlphaLowerCase    := pws_yes;      // Should Lower Case characters be Allowed/Required
       Numerals          := pws_yes;      // Should Numeric characters be Allowed/Required
       SpecialCharacters := pws_allowed;  // Should Special characters be Allowed/Required
-      ExcludeSimilar    := pws_required;
-      ExcludeAmbiguous  := pws_required;
+      ExcludeSimilar    := pws_required; // Should we exclude characters that look very similar
+      ExcludeAmbiguous  := pws_required; // Should we exclude characters know to confuse some apps
 
       if ShowModal = mrOK then begin
         showmessage(HashedPassword + #13 + BoolToStr(RequirePasswordChange));
