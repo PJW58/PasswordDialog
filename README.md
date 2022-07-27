@@ -3,6 +3,8 @@
  
 <img src="https://img.shields.io/badge/Compiler-Free%20Pascal%20%2F%20Lazarus-brightgreen">
  
+<img src="https://img.shields.io/badge/License-Modified%20LGPL%20with%20Linking%20exception-brightgreen">
+
  Author:  Paul J West
  
  License: Modified LGPL with Linking Exception
