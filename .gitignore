@@ -1,4 +1,5 @@
 ### FreePascal ###
+*.exe
 *.lps
 *.compiled
 *.[oa]
