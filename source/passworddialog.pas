@@ -55,7 +55,6 @@ type
 
 type
   TPasswordChangeDialog = class( TForm )
-    bbCancel:          TBitBtn;
     bbOK:              TBitBtn;
     bbGenerate:        TBitBtn;
     bbToClip:          TBitBtn;
@@ -79,7 +78,6 @@ type
     StatusBar1:        TStatusBar;
 
     procedure bbOKClick             ( Sender: TObject );
-    procedure bbCancelClick         ( Sender: TObject );
     procedure bbGenerateClick       ( Sender: TObject );
     procedure bbToClipClick         ( Sender: TObject );
     procedure ebPassword1ButtonClick( Sender: TObject );
@@ -111,7 +109,6 @@ type
 
   public
     // Write only properties to overide defaults
-
     property Salt:       string  write FSalt;
     property Iterations: integer write FIterations;
     property PwdLength:  integer write FPwdLength;
@@ -124,7 +121,6 @@ type
     property SpecialCharacters:  TPasswordRequirement write FSpecial;
     property ExcludeSimilar:     TPasswordRequirement write FSimilar;
     property ExcludeAmbiguous:   TPasswordRequirement write FAmbiguous;
-
 
     // Read only properties to return Results
     property HashedPassword:        string  read FPassword;
@@ -206,7 +202,6 @@ begin
     Close;
   end;
 
-  bbCancel.Enabled := True;    // Can always Cancel
   bbOK.Enabled     := False;   // Enabled once passwords are valid
   bbToClip.Enabled := False;   // Enabled once passwords are valid
 
@@ -266,7 +261,7 @@ begin
     pcm_Change:
       begin
         panelRequirements.Visible := False;
-        PasswordChangeDialog.Height := panelMain.Height + StatusBar1.Height + bbCancel.Height + 16;;
+        PasswordChangeDialog.Height := panelMain.Height + StatusBar1.Height + bbOK.Height + 16;;
       end;
   end;
 
@@ -275,17 +270,6 @@ begin
   panelButtons.Enabled      := panelRequirements.Visible;
   ebPassword1.Width         := PasswordChangeDialog.Width - ( panelMain.Left + 195 );
   ebPassword2.Width         := ebPassword1.Width;
-end;
-
-{==============================================================================|
-| bbCancelClick:                                                               |
-|------------------------------------------------------------------------------|
-| Closes the form with an mrCancel result                                      |
-|==============================================================================}
-procedure TPasswordChangeDialog.bbCancelClick( Sender: TObject );
-begin
-  FPassword      := '';
-  FRequireChange := False;
 end;
 
 {==============================================================================|
@@ -393,7 +377,10 @@ begin
     exit;
   end;
 
-  if aSize > seLength.Value then seLength.Value := aSize;
+  if aSize > seLength.Value then begin
+    seLength.Value := aSize;
+    seLength.Update;
+  end;
 
   Attempts := 0;
   ebPassword1.Text := '';
@@ -472,7 +459,7 @@ begin
     if panelRequirements.Visible then begin
       PasswordChangeDialog.Height := panelMain.Height + panelRequirements.Height + StatusBar1.Height + 8;
     end else begin
-      PasswordChangeDialog.Height := panelMain.Height + StatusBar1.Height + bbCancel.Height + 16;
+      PasswordChangeDialog.Height := panelMain.Height + StatusBar1.Height + bbOK.Height + 16;
     end;
 
     ebPassword1.Width := PasswordChangeDialog.Width - ( panelMain.Left + 195 );
