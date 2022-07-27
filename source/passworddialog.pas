@@ -5,14 +5,14 @@ unit PasswordDialog;
 interface
 
 uses
- {============================================================================|
-  | Units provided as part of the Compiler Runtime and Component Libraries     |
-  |============================================================================}
+{==============================================================================|
+| Units provided as part of the Compiler Runtime and Component Libraries       |
+|==============================================================================}
   SysUtils,               // (RTL) System utilities unit
   Classes,                // (FCL) Classes Unit
-  {============================================================================|
-  | LCL: Units provided as part of the Lazarus Component Library               |
-  |============================================================================}
+{==============================================================================|
+| LCL: Units provided as part of the Lazarus Component Library                 |
+|==============================================================================}
   Forms,                  // (LCL) Forms Unit
   Buttons,                // (LCL) Button Components
   Clipbrd,                // (LCL) Clipboard Controls
@@ -24,12 +24,30 @@ uses
   Graphics,               // (LCL) Graphic Controls
   StdCtrls,               // (LCL) Standard Controls
   Spin,                   // (LCL) Spin Control
-
-  {============================================================================|
-  | Our Stuff                                                                  |
-  |============================================================================}
+{==============================================================================|
+| Our Stuff                                                                    |
+|==============================================================================}
   HashPassword;           // Password Based Key Derivation Functions
 
+{==============================================================================|
+| TPasswordChangeMode:                                                         |
+|------------------------------------------------------------------------------|
+| pcm_Change:  Show only the two password fields and the OK/Cancel Buttons     |
+| pcm_Reset:   Show a full password reset dialog with all options              |
+|==============================================================================}
+type
+  TPasswordChangeMode  = ( pcm_Change, pcm_Reset );
+
+{==============================================================================|
+| TPasswordRequirement:                                                        |
+|------------------------------------------------------------------------------|
+| Valid settings are:                                                          |
+|   pws_no         - Characters will not be required, but user can change      |
+|   pws_yes        - Characters will be required but user can change           |
+|   pws_required   - Characters will be required  - user cannot change         |
+|   pws_allowed    - Characters will be allowed but not required               |
+|   pws_notallowed - Characters will not be allowed and user cannot change     |
+|==============================================================================}
 type
   TPasswordRequirement = ( pws_no, pws_yes, pws_required, pws_allowed, pws_notallowed );
 
@@ -66,11 +84,11 @@ type
     procedure bbToClipClick         ( Sender: TObject );
     procedure ebPassword1ButtonClick( Sender: TObject );
     procedure ebPassword2ButtonClick( Sender: TObject );
-    procedure FormDblClick          ( Sender: TObject );
     procedure seLengthChange        ( Sender: TObject );
 
     procedure FormCreate            ( Sender: TObject );
     procedure FormShow              ( Sender: TObject );
+    procedure FormDblClick          ( Sender: TObject );
     procedure RequirementsChange    ( Sender: TObject );
 
     function ValidatePassword( Sender: TObject ): boolean;
@@ -79,9 +97,10 @@ type
     FSalt:          string;   // Salt - Set before calling
     FPassword:      string;   // Encoded Password
     FIterations:    integer;  // Number if iterations for Hash
+    FPwdLength:     integer;  // Requested Password Length
     FMinLength:     integer;  // Minimum Password Length
     FMaxLength:     integer;  // Maximum Password Length
-    FPwdLength:     integer;  // Requested Password Length
+    FMode:          TPasswordChangeMode;
     FLowerCase:     TPasswordRequirement;
     FUpperCase:     TPasswordRequirement;
     FNumerals:      TPasswordRequirement;
@@ -90,32 +109,21 @@ type
     FAmbiguous:     TPasswordRequirement;
     FRequireChange: boolean;
 
-  private
-    // Property Write Specifiers
-    procedure SetSalt            ( aValue: string );
-    procedure SetMinLength       ( aValue: integer );
-    procedure SetMaxLength       ( aValue: integer );
-    procedure SetPwdLength       ( aValue: integer );
-    procedure SetLowerCase       ( aValue: TPasswordRequirement );
-    procedure SetUpperCase       ( aValue: TPasswordRequirement );
-    procedure SetNumerals        ( aValue: TPasswordRequirement );
-    procedure SetSpecial         ( aValue: TPasswordRequirement );
-    procedure SetExcludeSimilar  ( aValue: TPasswordRequirement );
-    procedure SetExcludeAmbiguous( aValue: TPasswordRequirement );
-
   public
     // Write only properties to overide defaults
-    property Salt:       string  write SetSalt;
+
+    property Salt:       string  write FSalt;
     property Iterations: integer write FIterations;
-    property PwdLength:  integer write SetPwdLength;
-    property MinLength:  integer write SetMinLength;
-    property MaxLength:  integer write SetMaxLength;
-    property AlphaUpperCase:     TPasswordRequirement write SetUpperCase;
-    property AlphaLowerCase:     TPasswordRequirement write SetLowerCase;
-    property Numerals:           TPasswordRequirement write SetNumerals;
-    property SpecialCharacters:  TPasswordRequirement write SetSpecial;
-    property ExcludeSimilar:     TPasswordRequirement write SetExcludeSimilar;
-    property ExcludeAmbiguous:   TPasswordRequirement write SetExcludeAmbiguous;
+    property PwdLength:  integer write FPwdLength;
+    property MinLength:  integer write FMinLength;
+    property MaxLength:  integer write FMaxLength;
+    property Mode:               TPasswordChangeMode  write FMode;
+    property AlphaUpperCase:     TPasswordRequirement write FUpperCase;
+    property AlphaLowerCase:     TPasswordRequirement write FLowerCase;
+    property Numerals:           TPasswordRequirement write FNumerals;
+    property SpecialCharacters:  TPasswordRequirement write FSpecial;
+    property ExcludeSimilar:     TPasswordRequirement write FSimilar;
+    property ExcludeAmbiguous:   TPasswordRequirement write FAmbiguous;
 
 
     // Read only properties to return Results
@@ -157,6 +165,7 @@ begin
   Randomize;                      // Seed random number generator
 
   // Set Defaults - Can be overidden by parent
+  FMode          := pcm_Change;   // Default to User Change Dialog
   FIterations    := 127873;       // Strengh of Hash
   FMinLength     := 8;            // Minimum length
   FMaxLength     := 64;           // Maximum length
@@ -248,9 +257,24 @@ begin
 
   cbRequireChange.Checked := FRequireChange;
 
-  PasswordChangeDialog.Height := panelMain.Height + panelRequirements.Height + StatusBar1.Height + 8;
-  ebPassword1.Width           := PasswordChangeDialog.Width - ( panelMain.Left + 195 );
-  ebPassword2.Width           := ebPassword1.Width;
+  case FMode of
+    pcm_Reset:
+      begin
+        panelRequirements.Visible := True;
+        PasswordChangeDialog.Height := panelMain.Height + panelRequirements.Height + StatusBar1.Height + 8;
+      end;
+    pcm_Change:
+      begin
+        panelRequirements.Visible := False;
+        PasswordChangeDialog.Height := panelMain.Height + StatusBar1.Height + bbCancel.Height + 16;;
+      end;
+  end;
+
+  panelRequirements.Enabled := panelRequirements.Visible;
+  panelButtons.Visible      := panelRequirements.Visible;
+  panelButtons.Enabled      := panelRequirements.Visible;
+  ebPassword1.Width         := PasswordChangeDialog.Width - ( panelMain.Left + 195 );
+  ebPassword2.Width         := ebPassword1.Width;
 end;
 
 {==============================================================================|
@@ -439,19 +463,21 @@ end;
 |==============================================================================}
 procedure TPasswordChangeDialog.FormDblClick( Sender: TObject );
 begin
-  panelRequirements.Visible := not panelRequirements.Visible;
-  panelRequirements.Enabled := panelRequirements.Visible;
-  panelButtons.Visible      := panelRequirements.Visible;
-  panelButtons.Enabled      := panelRequirements.Visible;
+  if ( FMode = pcm_Reset ) then begin
+    panelRequirements.Visible := not panelRequirements.Visible;
+    panelRequirements.Enabled := panelRequirements.Visible;
+    panelButtons.Visible      := panelRequirements.Visible;
+    panelButtons.Enabled      := panelRequirements.Visible;
 
-  if panelRequirements.Visible then begin
-    PasswordChangeDialog.Height := panelMain.Height + panelRequirements.Height + StatusBar1.Height + 8;
-  end else begin
-    PasswordChangeDialog.Height := panelMain.Height + StatusBar1.Height + bbCancel.Height + 16;
+    if panelRequirements.Visible then begin
+      PasswordChangeDialog.Height := panelMain.Height + panelRequirements.Height + StatusBar1.Height + 8;
+    end else begin
+      PasswordChangeDialog.Height := panelMain.Height + StatusBar1.Height + bbCancel.Height + 16;
+    end;
+
+    ebPassword1.Width := PasswordChangeDialog.Width - ( panelMain.Left + 195 );
+    ebPassword2.Width := ebPassword1.Width;
   end;
-
-  ebPassword1.Width := PasswordChangeDialog.Width - ( panelMain.Left + 195 );
-  ebPassword2.Width := ebPassword1.Width;
 end;
 
 {==============================================================================|
@@ -462,113 +488,6 @@ begin
   ebPassword1.MaxLength := FMaxLength;
   ebPassword2.MaxLength := FMaxLength;
   RequirementsChange( Sender );
-end;
-
-
-{==============================================================================|
-| Property Specifiers - Receive parameters from parent                         |
-|==============================================================================}
-
-{==============================================================================|
-| SetSalt: Update Hash Salt                                                    |
-|------------------------------------------------------------------------------|
-| By convention the hash salt is the UserID of the user.  This provides a      |
-| different salt value fpr each user, rendering rainbow tables innefective     |
-|==============================================================================}
-procedure TPasswordChangeDialog.SetSalt( aValue: string );
-begin
-  FSalt := aValue;
-end;
-
-{==============================================================================|
-| SetMinLength: Update password minimum length from parent                     |
-|==============================================================================}
-procedure TPasswordChangeDialog.SetMinLength( aValue: integer );
-begin
-  FMinLength := aValue;
-end;
-
-{==============================================================================|
-| SetPwdLength: Update password minimum length from parent                     |
-|==============================================================================}
-procedure TPasswordChangeDialog.SetPwdLength( aValue: integer );
-begin
-  FPwdLength := aValue;
-end;
-
-{==============================================================================|
-| SetMaxLength: Update password maximum length from parent                     |
-|==============================================================================}
-procedure TPasswordChangeDialog.SetMaxLength( aValue: integer );
-begin
-  FMaxLength := aValue;
-end;
-
-{==============================================================================|
-| SetLowerCase: Update Lower Case setting from parent                          |
-|------------------------------------------------------------------------------|
-| Valid settings are:                                                          |
-|   pws_no         - Characters will not be required, but user can change      |
-|   pws_yes        - Characters will be required but user can change           |
-|   pws_required   - Characters will be required  - user cannot change         |
-|   pws_allowed    - Characters will be allowed but not required               |
-|   pws_notallowed - Characters will not be allowed and user cannot change     |
-|==============================================================================}
-procedure TPasswordChangeDialog.SetLowerCase( aValue: TPasswordRequirement );
-begin
-  FLowerCase := aValue;
-end;
-
-{==============================================================================|
-| SetUpperCase: Update Upper Case setting from parent                          |
-|------------------------------------------------------------------------------|
-| Allowed settings are the same as for lower case                              |
-|==============================================================================}
-procedure TPasswordChangeDialog.SetUpperCase( aValue: TPasswordRequirement );
-begin
-  FUpperCase := aValue;
-end;
-
-{==============================================================================|
-| SetNumerals: Update Numerals setting from parent                             |
-|------------------------------------------------------------------------------|
-| Allowed settings are the same as for lower case                              |
-|==============================================================================}
-procedure TPasswordChangeDialog.SetNumerals( aValue: TPasswordRequirement );
-begin
-  FNumerals := aValue;
-end;
-
-{==============================================================================|
-| SetSpecial: Update Special Character setting from parent                     |
-|------------------------------------------------------------------------------|
-| Allowed settings are the same as for lower case                              |
-|==============================================================================}
-procedure TPasswordChangeDialog.SetSpecial( aValue: TPasswordRequirement );
-begin
-  FSpecial := aValue;
-end;
-
-{==============================================================================|
-| SetExcludeSimilar: Update the exclude similar characters setting from parent |
-|------------------------------------------------------------------------------|
-| Allowed settings are the same as for lower case except that pws_allowed      |
-| has no meaning here and should not be used.                                  |
-|==============================================================================}
-procedure TPasswordChangeDialog.SetExcludeSimilar( aValue: TPasswordRequirement );
-begin
-  FSimilar := aValue;
-end;
-
-{==============================================================================|
-| SetExcludeAmbiguous: Update the exclude anbiguous characters setting         |
-|------------------------------------------------------------------------------|
-| Allowed settings are the same as for lower case except that pws_allowed      |
-| has no meaning here and should not be used.                                  |
-|==============================================================================}
-procedure TPasswordChangeDialog.SetExcludeAmbiguous( aValue: TPasswordRequirement );
-begin
-  FAmbiguous := aValue;
 end;
 
 end.
