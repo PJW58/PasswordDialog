@@ -1,2 +1,9 @@
+### Lazarus ###
+# Lazarus compiler-generated binaries (safe to delete)
+*.dylib
+*.lrs
+*.res
+*.dbg
+*.or
 backup/
 lib/
