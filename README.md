@@ -1,6 +1,8 @@
 # PasswordDialog
  Password Change Dialog with PBKDF2 Hashing
  
+https://img.shields.io/static/v1?label=Compiler&message=Free_Pascal&color=green
+ 
  Author:  Paul J West
  
  License: Modified LGPL with Linking Exception
@@ -47,9 +49,6 @@ Usage:
   end;
 end;
 ```
-
-https://img.shields.io/static/v1?label=Language&message=Free Pascal&color=green
-
 
 Explanation of Parameters
 
