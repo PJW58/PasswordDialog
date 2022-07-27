@@ -10,10 +10,14 @@ uses
   athreads,
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  sysutils, Forms, controls, dialogs, PasswordDialog
+  sysutils, Forms, controls, dialogs,
+  PasswordDialog
   { you can add units after this };
 
 {$R *.res}
+
+var
+  UserID: string;
 
 begin
   RequireDerivedFormResource:=True;
@@ -22,6 +26,12 @@ begin
   Application.CreateForm(TPasswordChangeDialog, PasswordChangeDialog);
   //Application.ProcessMessages;
 
+  // This is only a shortcut for testing purposes
+  // In real life you would call the PasswordChangeDialog from your Form
+  // Instead of directly from the Application.
+
+  UserID := 'MyUserID';
+
   PasswordChangeDialog := TPasswordChangeDialog.Create( nil );
   try
     // All of the parameters except for Salt are optional
@@ -29,8 +39,8 @@ begin
     with PasswordChangeDialog do begin
       Caption           := 'Password Reset';
       Iterations        := 429937;       // Number of Iterations for Hash Routine
-      Salt              := 'MyUserID';   // Usually the UserID, but you can get creative...
-      PwdLength         := 12;           // If not specified Default is Minumum Length
+      Salt              := UserID;       // Usually the UserID, but you can get creative...
+      PwdLength         := 12;           // If not specified Default is Minimum Length
       MinLength         := 1;            // Minimum Password length - Default 8
       MaxLength         := 48;           // Maximum Password length - Default 64
       AlphaUpperCase    := pws_required; // Should Upper Case characters be Allowed/Required
