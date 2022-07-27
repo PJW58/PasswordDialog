@@ -9,12 +9,14 @@
  
  Third Party Libraries:
  
- 1. [Hash Library for Pascal](https://wiki.freepascal.org/HashLib4Pascal)
-    [<GitHub>](https://github.com/Xor-el/HashLib4Pascal)
+ 1. Hash Library for Pascal 
+    [wiki](https://wiki.freepascal.org/HashLib4Pascal)
+    [GitHub](https://github.com/Xor-el/HashLib4Pascal)
  
- 2. [IconDB](https://IconsDB.com)
+ 2. IconDB 
+    [Website](https://IconsDB.com) CC0 1.0 Universal Public Domain Dedication.
  
-   Some Icons from IconsDB.com - CC0 1.0 Universal Public Domain Dedication.
+
    
 Usage: 
 ```Pascal
