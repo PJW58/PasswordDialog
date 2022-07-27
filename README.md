@@ -9,7 +9,7 @@
  
  Third Party Libraries:
  
- [Hash Library for Pascal](https://wiki.freepascal.org/HashLib4Pascal)[  <GitHub>)](https://github.com/Xor-el/HashLib4Pascal)
+ 1. [Hash Library for Pascal](https://wiki.freepascal.org/HashLib4Pascal)[  <GitHub>](https://github.com/Xor-el/HashLib4Pascal)
  
  [IconDB](https://IconsDB.com)
  
