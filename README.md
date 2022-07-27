@@ -1,7 +1,7 @@
 # PasswordDialog
  Password Change Dialog with PBKDF2 Hashing
  
-<img src="https://img.shields.io/badge/Compiler-Free%20Pascal%20%2F%20Lazarus-brightgreen"?style=for-the-badge&logo=appveyor>
+<img src="https://img.shields.io/badge/Compiler-Free%20Pascal%20%2F%20Lazarus-brightgreen">
  
  Author:  Paul J West
  
