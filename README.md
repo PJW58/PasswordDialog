@@ -15,7 +15,7 @@
  
  2. <[IconDB](https://IconsDB.com)> CC0 1.0 Universal Public Domain Dedication.
  
-
+<img src="./img/changedialog.png">   <img src="./img/resetdialog.png">
    
 Usage: 
 ```Pascal

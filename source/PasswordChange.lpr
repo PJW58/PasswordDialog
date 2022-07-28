@@ -44,7 +44,7 @@ begin
       PwdLength         := 12;           // If not specified Default is Minimum Length
       MinLength         := 1;            // Minimum Password length - Default 8
       MaxLength         := 48;           // Maximum Password length - Default 64
-      AlphaUpperCase    := pws_required; // Should Upper Case characters be Allowed/Required
+      AlphaUpperCase    := pws_yes;      // Should Upper Case characters be Allowed/Required
       AlphaLowerCase    := pws_yes;      // Should Lower Case characters be Allowed/Required
       Numerals          := pws_yes;      // Should Numeric characters be Allowed/Required
       SpecialCharacters := pws_allowed;  // Should Special characters be Allowed/Required
