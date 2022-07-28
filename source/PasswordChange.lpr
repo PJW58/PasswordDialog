@@ -52,7 +52,13 @@ begin
       ExcludeAmbiguous  := pws_yes;      // Should we exclude characters know to confuse some apps
 
       if ShowModal = mrOK then begin
-        showmessage(HashedPassword + #13 + BoolToStr(RequirePasswordChange));
+        QuestionDlg( 'Result',
+          copy(HashedPassword, 1,48) + #13 +
+          copy(HashedPassword,49,48) + #13 +
+          copy(HashedPassword,97,40) + #13 +
+          BoolToStr(RequirePasswordChange),
+          mtCustom, [mrOK], ''
+        );
       end;
     end;
   finally

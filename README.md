@@ -22,15 +22,16 @@ Usage:
  function ResetPassword(
    const UserID: string;
    out   NewPassword: string;
-   out   RequireReset: boolean);
+   out   RequireReset: boolean): TModalResult;
  
  begin
-   PasswordChangeDialog := TPasswordChangeDialog.Create( MainForm );
-   try
+  PasswordChangeDialog := TPasswordChangeDialog.Create( nil );
+  try
     // All of the parameters except for Salt are optional
     // Each has a default, which may or may not suit your needs
     with PasswordChangeDialog do begin
-      Caption           := 'Password Reset';
+      Mode              := pcm_Reset;    // pcm_Reset or pcm_Change
+      Caption           := 'Password Reset: ' + UserID;
       Iterations        := 429937;       // Number of Iterations for Hash Routine
       Salt              := UserID;       // Usually the UserID, but you can get creative...
       PwdLength         := 12;           // If not specified Default is Minimum Length
@@ -41,12 +42,13 @@ Usage:
       Numerals          := pws_yes;      // Should Numeric characters be Allowed/Required
       SpecialCharacters := pws_allowed;  // Should Special characters be Allowed/Required
       ExcludeSimilar    := pws_yes;      // Should we exclude characters that look very similar
-      ExcludeAmbiguous  := pws_yes;      // Should we exclude characters know to confuse some apps 
+      ExcludeAmbiguous  := pws_yes;      // Should we exclude characters know to confuse some apps
 
-      if ShowModal = mrOK then begin
-        NewPassword  := Password;
-	    RequireReset := RequirePasswordChange;
-      end;
+      Result := ShowModal;
+      if Result = mrOK then begin
+        NewPassword  := HashedPassword;
+		RequireReset := RequirePasswordChange
+      end else begin
     end;
   finally
     FreeAndNil( PasswordChangeDialog );

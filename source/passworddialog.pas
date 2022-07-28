@@ -153,9 +153,12 @@ resourcestring
   ERR_TOMUCHTIME   = 'It''s taking longer than expected to derive a password with these requirements.';
   ERR_KEEPTRYING   = 'Do you want me to keep trying?';
   ERR_NOTCOMPLEX   = 'Password entered does not meet minimum complexity requirements.';
-  ERR_NOTTHESAME   = 'Passwords entered are not the same.';
+  ERR_NOTTHESAME   = 'Passwords entered do not match.';
   ERR_INVALIDPW    = 'Invalid Password';
 
+{==============================================================================|
+| ImageList Constants                                                          |
+|==============================================================================}
 const
   image_ClipBoardFull  = 0;
   image_ClipboardEmpty = 1;
@@ -303,7 +306,9 @@ begin
     FPassword      := GeneratePKDF2( FSalt, ebPassword1.Text, FIterations );
     FRequireChange := cbRequireChange.Checked;
   end else begin
-    QuestionDlg( ERR_INVALIDPW, ERR_NOTTHESAME, mtWarning, [mrOK], '' );
+    if ebPassword1.Text = ebPassword2.Text
+      then QuestionDlg( ERR_INVALIDPW, ERR_NOTCOMPLEX, mtWarning, [mrOK], '' )
+      else QuestionDlg( ERR_INVALIDPW, ERR_NOTTHESAME, mtWarning, [mrOK], '' );
     ModalResult := mrNone;
   end;
 end;
@@ -500,7 +505,6 @@ begin
     end else begin
       QuestionDlg( ERR_INVALIDPW, ERR_NOTCOMPLEX, mtWarning, [mrOK], '' );
       Key := 0;
-      //ebPassword1.SetFocus;
     end;
   end;
 end;
@@ -526,9 +530,8 @@ begin
       bbOKClick( Sender );
     end else begin
       QuestionDlg( ERR_INVALIDPW, ERR_NOTCOMPLEX, mtWarning, [mrOK], '' );
-      Key := 0;
-      //ebPassword2.SetFocus;
     end;
+    Key := 0;
   end;
 end;
 
