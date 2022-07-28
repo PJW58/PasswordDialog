@@ -19,6 +19,7 @@ uses
 var
   UserID: string;
   NewPassword: string;
+  ChangeRequired: boolean;
 
 begin
   RequireDerivedFormResource:=True;
@@ -32,7 +33,7 @@ begin
   // Instead of directly from the Application.
 
   UserID := 'MyUserID';
-  PCD_PasswordChange( nil, UserID, NewPassword );
+  PCD_PasswordReset( nil, UserID, NewPassword, ChangeRequired );
 
   //PasswordChangeDialog := TPasswordChangeDialog.Create( nil );
   //try

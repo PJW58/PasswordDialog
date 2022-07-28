@@ -340,8 +340,8 @@ begin
   panelRequirements.Enabled := panelRequirements.Visible;
   panelButtons.Visible      := panelRequirements.Visible;
   panelButtons.Enabled      := panelRequirements.Visible;
-  ebPassword1.Width         := PasswordChangeDialog.Width - ( panelMain.Left + 195 );
-  ebPassword2.Width         := ebPassword1.Width;
+  //ebPassword1.Width         := PasswordChangeDialog.Width - ( panelMain.Left + 195 );
+  //ebPassword2.Width         := ebPassword1.Width;
 end;
 
 {==============================================================================|
@@ -603,8 +603,8 @@ begin
       PasswordChangeDialog.Height := panelMain.Height + StatusBar1.Height + bbOK.Height + 16;
     end;
 
-    ebPassword1.Width := PasswordChangeDialog.Width - ( panelMain.Left + 195 );
-    ebPassword2.Width := ebPassword1.Width;
+    //ebPassword1.Width := PasswordChangeDialog.Width - ( panelMain.Left + 195 );
+    //ebPassword2.Width := ebPassword1.Width;
   end;
 end;
 
