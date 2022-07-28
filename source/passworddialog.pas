@@ -134,6 +134,9 @@ type
 var
   PasswordChangeDialog: TPasswordChangeDialog;
 
+// Some simple use cases to simply use (uses default setting)
+function PCD_PasswordChange( Parent: TComponent; const UserID: string; out NewPassword: string ): TModalResult;
+
 implementation
 
 {$R *.lfm}
@@ -147,6 +150,8 @@ const
   AMBIGUOUS   = ' +-~,;:.{}<>[]()/\''`"';
 
 resourcestring
+  CAPTION_CHANGE   = 'Password Change';
+  CAPTION_RESET    = 'Password Reset';
   ERR_SALTREQUIRED = 'A Salt is required to generate a password.';
   ERR_NOTYPES      = 'No character types are allowed!';
   ERR_MAXTOSMALL   = 'Maximum password length of %d is too small to accommodate the other requirements.';
@@ -169,6 +174,22 @@ const
   image_OKCircle       = 6;
   image_EyeInvisible   = 7;
   image_EyeVisible     = 8;
+
+function PCD_PasswordChange( Parent: TComponent; const UserID: string; out NewPassword: string ): TModalResult;
+begin
+  PasswordChangeDialog := TPasswordChangeDialog.Create( Parent );
+  try
+    PasswordChangeDialog.Mode    := pcm_Change;
+    PasswordChangeDialog.Caption := CAPTION_CHANGE + ': ' + UserID;
+    PasswordChangeDialog.Salt    := UserID;
+    Result := PasswordChangeDialog.ShowModal;
+    if Result = mrOK
+      then NewPassword := PasswordChangeDialog.HashedPassword
+      else NewPassword := '';
+  finally
+    freeandnil(PasswordChangeDialog);
+  end;
+end;
 
 { TPasswordChangeDialog }
 

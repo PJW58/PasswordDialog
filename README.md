@@ -55,6 +55,27 @@ Usage:
   end;
 end;
 ```
+or for a quicky password change
+
+```pascal
+PasswordChangeDialog := TPasswordChangeDialog.Create( nil );
+try
+  PasswordChangeDialog.Mode := pcm_Change; // pcm_Reset or pcm_Change
+  PasswordChangeDialog.Salt := UserID;     // Usually the UserID, but you can get creative...
+  if PasswordChangeDialog.ModalResult = mrOK then begin
+    NewPassword := PasswordChangeDialog.HashedPassword;	  
+  end;
+finally
+  freeandnil(PasswordChangeDialog);
+end;
+```
+
+or if you really want a quick change
+
+```Pascal
+Result := PCD_PasswordChange( Parent, UserID, NewPassword);
+if Result = mrok ......
+'''
 
 Explanation of Parameters
 
