@@ -5,7 +5,7 @@ unit PasswordDialog;
 interface
 
 uses
-{==============================================================================|
+ {==============================================================================|
 | Units provided as part of the Compiler Runtime and Component Libraries       |
 |==============================================================================}
   SysUtils,               // (RTL) System utilities unit
@@ -37,7 +37,7 @@ uses
 | pcm_Reset:   Show a full password reset dialog with all options              |
 |==============================================================================}
 type
-  TPasswordChangeMode  = ( pcm_Change, pcm_Reset );
+  TPasswordChangeMode = ( pcm_Change, pcm_Reset );
 
 {==============================================================================|
 | TPasswordRequirement:                                                        |
@@ -78,19 +78,19 @@ type
     seLength:          TSpinEdit;
     StatusBar1:        TStatusBar;
 
-    procedure bbOKClick             ( Sender: TObject );
-    procedure bbGenerateClick       ( Sender: TObject );
-    procedure bbToClipClick         ( Sender: TObject );
+    procedure bbOKClick( Sender: TObject );
+    procedure bbGenerateClick( Sender: TObject );
+    procedure bbToClipClick( Sender: TObject );
     procedure ebPassword1ButtonClick( Sender: TObject );
     procedure ebPassword2ButtonClick( Sender: TObject );
-    procedure seLengthChange        ( Sender: TObject );
-    procedure ebPassword1KeyUp      ( Sender: TObject; var Key: Word; Shift: TShiftState );
-    procedure ebPassword2KeyUp      ( Sender: TObject; var Key: Word; Shift: TShiftState );
+    procedure seLengthChange( Sender: TObject );
+    procedure ebPassword1KeyUp( Sender: TObject; var Key: word; Shift: TShiftState );
+    procedure ebPassword2KeyUp( Sender: TObject; var Key: word; Shift: TShiftState );
 
-    procedure FormCreate            ( Sender: TObject );
-    procedure FormShow              ( Sender: TObject );
-    procedure FormDblClick          ( Sender: TObject );
-    procedure RequirementsChange    ( Sender: TObject );
+    procedure FormCreate( Sender: TObject );
+    procedure FormShow( Sender: TObject );
+    procedure FormDblClick( Sender: TObject );
+    procedure RequirementsChange( Sender: TObject );
 
     function ValidatePasswords( Sender: TObject ): boolean;
     function ValidPassword( aValue: string ): boolean;
@@ -118,16 +118,16 @@ type
     property PwdLength:  integer write FPwdLength;
     property MinLength:  integer write FMinLength;
     property MaxLength:  integer write FMaxLength;
-    property Mode:               TPasswordChangeMode  write FMode;
-    property AlphaUpperCase:     TPasswordRequirement write FUpperCase;
-    property AlphaLowerCase:     TPasswordRequirement write FLowerCase;
-    property Numerals:           TPasswordRequirement write FNumerals;
-    property SpecialCharacters:  TPasswordRequirement write FSpecial;
-    property ExcludeSimilar:     TPasswordRequirement write FSimilar;
-    property ExcludeAmbiguous:   TPasswordRequirement write FAmbiguous;
+    property Mode:              TPasswordChangeMode  write FMode;
+    property AlphaUpperCase:    TPasswordRequirement write FUpperCase;
+    property AlphaLowerCase:    TPasswordRequirement write FLowerCase;
+    property Numerals:          TPasswordRequirement write FNumerals;
+    property SpecialCharacters: TPasswordRequirement write FSpecial;
+    property ExcludeSimilar:    TPasswordRequirement write FSimilar;
+    property ExcludeAmbiguous:  TPasswordRequirement write FAmbiguous;
 
     // Read only properties to return Results
-    property HashedPassword:        string  read FPassword;
+    property HashedPassword: string read FPassword;
     property RequirePasswordChange: boolean read FRequireChange;
   end;
 
@@ -136,7 +136,7 @@ var
 
 // Some simple use cases to simply use (uses default setting)
 function PCD_PasswordChange( Parent: TComponent; const UserID: string; out NewPassword: string ): TModalResult;
-function PCD_PasswordReset(  Parent: TComponent; const UserID: string; out NewPassword: string; out ChangeRequired: boolean): TModalResult;
+function PCD_PasswordReset( Parent: TComponent; const UserID: string; out NewPassword: string; out ChangeRequired: boolean ): TModalResult;
 
 implementation
 
@@ -176,40 +176,43 @@ const
   IMAGE_EYEINVISIBLE   = 7;
   IMAGE_EYEVISIBLE     = 8;
 
-function PCD_PasswordChange(
-  Parent: TComponent;
-  const UserID: string;
-  out NewPassword: string
-): TModalResult;
+{==============================================================================|
+| PCD_PasswordChange: Quick - Password Change                                  |
+|------------------------------------------------------------------------------|
+| Pawword change using only default settings                                   |
+|==============================================================================}
+function PCD_PasswordChange( Parent: TComponent; const UserID: string; out NewPassword: string ): TModalResult;
 begin
   PasswordChangeDialog := TPasswordChangeDialog.Create( Parent );
   try
-    PasswordChangeDialog.Mode    := pcm_Change;
+    PasswordChangeDialog.Mode := pcm_Change;
     PasswordChangeDialog.Caption := CAPTION_CHANGE + ': ' + UserID;
-    PasswordChangeDialog.Salt    := UserID;
+    PasswordChangeDialog.Salt := UserID;
     Result := PasswordChangeDialog.ShowModal;
-    if Result = mrOK
-      then NewPassword := PasswordChangeDialog.HashedPassword
-      else NewPassword := '';
+    if Result = mrOk then begin
+      NewPassword := PasswordChangeDialog.HashedPassword;
+    end else begin
+      NewPassword := '';
+    end;
   finally
-    freeandnil(PasswordChangeDialog);
+    FreeAndNil( PasswordChangeDialog );
   end;
 end;
 
-function PCD_PasswordReset(
-  Parent: TComponent;
-  const UserID: string;
-  out NewPassword: string;
-  out ChangeRequired: boolean
-): TModalResult;
+{==============================================================================|
+| PCD_PasswordReset: Quick - Password Reset                                    |
+|------------------------------------------------------------------------------|
+| Pawword reset using only default settings                                    |
+|==============================================================================}
+function PCD_PasswordReset( Parent: TComponent; const UserID: string; out NewPassword: string; out ChangeRequired: boolean ): TModalResult;
 begin
   PasswordChangeDialog := TPasswordChangeDialog.Create( Parent );
   try
-    PasswordChangeDialog.Mode    := pcm_Reset;
+    PasswordChangeDialog.Mode := pcm_Reset;
     PasswordChangeDialog.Caption := CAPTION_RESET + ': ' + UserID;
-    PasswordChangeDialog.Salt    := UserID;
+    PasswordChangeDialog.Salt := UserID;
     Result := PasswordChangeDialog.ShowModal;
-    if Result = mrOK then begin
+    if Result = mrOk then begin
       NewPassword    := PasswordChangeDialog.HashedPassword;
       ChangeRequired := PasswordChangeDialog.RequirePasswordChange;
     end else begin
@@ -217,7 +220,7 @@ begin
       ChangeRequired := False;
     end;
   finally
-    freeandnil(PasswordChangeDialog);
+    FreeAndNil( PasswordChangeDialog );
   end;
 end;
 
@@ -257,10 +260,10 @@ procedure TPasswordChangeDialog.FormShow( Sender: TObject );
   function pws2state( pws: TPasswordRequirement ): TCheckBoxState;
   begin
     case pws of
-      pws_no: Result         := cbUnchecked;
-      pws_yes: Result        := cbChecked;
-      pws_required: Result   := cbChecked;
-      pws_allowed: Result    := cbGrayed;
+      pws_no:         Result := cbUnchecked;
+      pws_yes:        Result := cbChecked;
+      pws_required:   Result := cbChecked;
+      pws_allowed:    Result := cbGrayed;
       pws_notallowed: Result := cbUnchecked;
     end;
   end;
@@ -293,14 +296,16 @@ begin
     seLength.Enabled  := True;
   end;
 
-  if FPwdLength < 0 then FPwdLength := FMinLength;
+  if FPwdLength < 0 then begin
+    FPwdLength := FMinLength;
+  end;
   seLength.Value := FPwdLength;
 
   ckLowerCase.Enabled := ( FLowerCase <> pws_required ) and ( FLowerCase <> pws_notallowed );
   ckUpperCase.Enabled := ( FUpperCase <> pws_required ) and ( FUpperCase <> pws_notallowed );
-  ckNumerals.Enabled  := ( FNumerals  <> pws_required ) and ( FNumerals  <> pws_notallowed );
-  ckSpecial.Enabled   := ( FSpecial   <> pws_required ) and ( FSpecial   <> pws_notallowed );
-  ckSimilar.Enabled   := ( FSimilar   <> pws_required ) and ( FSimilar   <> pws_notallowed );
+  ckNumerals.Enabled  := ( FNumerals <> pws_required ) and ( FNumerals <> pws_notallowed );
+  ckSpecial.Enabled   := ( FSpecial <> pws_required ) and ( FSpecial <> pws_notallowed );
+  ckSimilar.Enabled   := ( FSimilar <> pws_required ) and ( FSimilar <> pws_notallowed );
   ckAmbiguous.Enabled := ( FAmbiguous <> pws_required ) and ( FAmbiguous <> pws_notallowed );
 
   if not ckSimilar.Enabled then begin
@@ -326,15 +331,15 @@ begin
 
   case FMode of
     pcm_Reset:
-      begin
-        panelRequirements.Visible := True;
-        PasswordChangeDialog.Height := panelMain.Height + panelRequirements.Height + StatusBar1.Height + 8;
-      end;
+    begin
+      panelRequirements.Visible   := True;
+      PasswordChangeDialog.Height := panelMain.Height + panelRequirements.Height + StatusBar1.Height + 8;
+    end;
     pcm_Change:
-      begin
-        panelRequirements.Visible := False;
-        PasswordChangeDialog.Height := panelMain.Height + StatusBar1.Height + bbOK.Height + 16;;
-      end;
+    begin
+      panelRequirements.Visible   := False;
+      PasswordChangeDialog.Height := panelMain.Height + StatusBar1.Height + bbOK.Height + 16;
+    end;
   end;
 
   panelRequirements.Enabled := panelRequirements.Visible;
@@ -357,9 +362,11 @@ begin
     FPassword      := GeneratePKDF2( FSalt, ebPassword1.Text, FIterations );
     FRequireChange := cbRequireChange.Checked;
   end else begin
-    if ebPassword1.Text = ebPassword2.Text
-      then QuestionDlg( ERR_INVALIDPW, ERR_NOTCOMPLEX, mtWarning, [mrOK], '' )
-      else QuestionDlg( ERR_INVALIDPW, ERR_NOTTHESAME, mtWarning, [mrOK], '' );
+    if ebPassword1.Text = ebPassword2.Text then begin
+      QuestionDlg( ERR_INVALIDPW, ERR_NOTCOMPLEX, mtWarning, [mrOk], '' );
+    end else begin
+      QuestionDlg( ERR_INVALIDPW, ERR_NOTTHESAME, mtWarning, [mrOk], '' );
+    end;
     ModalResult := mrNone;
   end;
 end;
@@ -371,7 +378,7 @@ end;
 |==============================================================================}
 procedure TPasswordChangeDialog.bbToClipClick( Sender: TObject );
 begin
-  Clipboard.AsText := ebPassword1.Text;
+  Clipboard.AsText    := ebPassword1.Text;
   bbToClip.ImageIndex := IMAGE_CLIPBOARDFULL;
 end;
 
@@ -383,9 +390,9 @@ end;
 |==============================================================================}
 procedure TPasswordChangeDialog.RequirementsChange( Sender: TObject );
 begin
-  bbOK.Enabled := ValidatePasswords( Sender );
-  bbToClip.Enabled := bbOK.Enabled;
-  Clipboard.AsText := '';
+  bbOK.Enabled        := ValidatePasswords( Sender );
+  bbToClip.Enabled    := bbOK.Enabled;
+  Clipboard.AsText    := '';
   bbToClip.ImageIndex := IMAGE_CLIPBOARDEMPTY;
 end;
 
@@ -396,30 +403,34 @@ var
   Ok2: boolean;
 
 begin
-  Ok1 := ValidPassword( ebPassword1.Text ) ;
-  Ok2 := ValidPassword( ebPassword2.Text ) ;
+  Ok1 := ValidPassword( ebPassword1.Text );
+  Ok2 := ValidPassword( ebPassword2.Text );
 
   if Ok1 then begin
-    if ebPassword1.PasswordChar <> #0
-      then ebPassword1.ImageIndex := IMAGE_OKCIRCLE
-      else ebPassword1.ImageIndex := IMAGE_OKFILLED;
+    if ebPassword1.PasswordChar <> #0 then begin
+      ebPassword1.ImageIndex := IMAGE_OKCIRCLE;
+    end else begin
+      ebPassword1.ImageIndex := IMAGE_OKFILLED;
+    end;
+  end else if ebPassword1.PasswordChar <> #0 then begin
+    ebPassword1.ImageIndex := IMAGE_EYEINVISIBLE;
   end else begin
-    if ebPassword1.PasswordChar <> #0
-      then ebPassword1.ImageIndex := IMAGE_EYEINVISIBLE
-      else ebPassword1.ImageIndex := IMAGE_EYEVISIBLE;
+    ebPassword1.ImageIndex := IMAGE_EYEVISIBLE;
   end;
 
   if Ok2 then begin
-    if ebPassword2.PasswordChar <> #0
-      then ebPassword2.ImageIndex := IMAGE_OKCIRCLE
-      else ebPassword2.ImageIndex := IMAGE_OKFILLED;
+    if ebPassword2.PasswordChar <> #0 then begin
+      ebPassword2.ImageIndex := IMAGE_OKCIRCLE;
+    end else begin
+      ebPassword2.ImageIndex := IMAGE_OKFILLED;
+    end;
+  end else if ebPassword2.PasswordChar <> #0 then begin
+    ebPassword2.ImageIndex := IMAGE_EYEINVISIBLE;
   end else begin
-    if ebPassword2.PasswordChar <> #0
-      then ebPassword2.ImageIndex := IMAGE_EYEINVISIBLE
-      else ebPassword2.ImageIndex := IMAGE_EYEVISIBLE;
+    ebPassword2.ImageIndex := IMAGE_EYEVISIBLE;
   end;
 
-  result := OK1 and OK2 and ( ebPassword1.Text = ebPassword2.Text );
+  Result := OK1 and OK2 and ( ebPassword1.Text = ebPassword2.Text );
 end;
 
 {==============================================================================|
@@ -430,21 +441,33 @@ end;
 function TPasswordChangeDialog.ValidPassword( aValue: string ): boolean;
 
 var
-  ok:     boolean;
+  ok: boolean;
 
 begin
-  ok     := ( aValue.Length >= seLength.Value );
-  ok     := ok and ( aValue.Length <= FMaxLength );
+  ok := ( aValue.Length >= seLength.Value );
+  ok := ok and ( aValue.Length <= FMaxLength );
 
   // if "Required" make it's there!
-  if ( ckUpperCase.State = cbChecked ) then ok := ok and ( aValue.IndexOfAny( UC_ALPHA    ) >= 0 );
-  if ( ckLowerCase.State = cbChecked ) then ok := ok and ( aValue.IndexOfAny( LC_ALPHA    ) >= 0 );
-  if ( ckNumerals.State  = cbChecked ) then ok := ok and ( aValue.IndexOfAny( NUMBERS     ) >= 0 );
-  if ( ckSpecial.State   = cbChecked ) then ok := ok and ( aValue.IndexOfAny( PUNCTUATION ) >= 0 );
+  if ( ckUpperCase.State = cbChecked ) then begin
+    ok := ok and ( aValue.IndexOfAny( UC_ALPHA ) >= 0 );
+  end;
+  if ( ckLowerCase.State = cbChecked ) then begin
+    ok := ok and ( aValue.IndexOfAny( LC_ALPHA ) >= 0 );
+  end;
+  if ( ckNumerals.State = cbChecked ) then begin
+    ok := ok and ( aValue.IndexOfAny( NUMBERS ) >= 0 );
+  end;
+  if ( ckSpecial.State = cbChecked ) then begin
+    ok := ok and ( aValue.IndexOfAny( PUNCTUATION ) >= 0 );
+  end;
 
   // if it's excluded make sure it's NOT there
-  if ( ckSimilar.State   = cbChecked ) then ok := ok and ( aValue.IndexOfAny( SIMILAR     ) < 0 );
-  if ( ckAmbiguous.State = cbChecked ) then ok := ok and ( aValue.IndexOfAny( AMBIGUOUS   ) < 0 );
+  if ( ckSimilar.State = cbChecked ) then begin
+    ok := ok and ( aValue.IndexOfAny( SIMILAR ) < 0 );
+  end;
+  if ( ckAmbiguous.State = cbChecked ) then begin
+    ok := ok and ( aValue.IndexOfAny( AMBIGUOUS ) < 0 );
+  end;
 
   Result := ok;
 end;
@@ -463,10 +486,18 @@ var
 
 begin
   ALPHABET := '';
-  if ckLowerCase.State <> cbUnChecked then ALPHABET := ALPHABET + LC_ALPHA;
-  if ckUpperCase.State <> cbUnChecked then ALPHABET := ALPHABET + UC_ALPHA;
-  if ckNumerals.State  <> cbUnChecked then ALPHABET := ALPHABET + NUMBERS;
-  if ckSpecial.State   <> cbUnChecked then ALPHABET := ALPHABET + PUNCTUATION;
+  if ckLowerCase.State <> cbUnChecked then begin
+    ALPHABET := ALPHABET + LC_ALPHA;
+  end;
+  if ckUpperCase.State <> cbUnChecked then begin
+    ALPHABET := ALPHABET + UC_ALPHA;
+  end;
+  if ckNumerals.State <> cbUnChecked then begin
+    ALPHABET := ALPHABET + NUMBERS;
+  end;
+  if ckSpecial.State <> cbUnChecked then begin
+    ALPHABET := ALPHABET + PUNCTUATION;
+  end;
 
   if ALPHABET = '' then begin
     QuestionDlg( Caption, ERR_NOTYPES, mtWarning, [mrOk], '' );
@@ -474,10 +505,18 @@ begin
   end;
 
   aSize := 0;
-  if ckLowerCase.State = cbChecked then Inc( aSize );
-  if ckUpperCase.State = cbChecked then Inc( aSize );
-  if ckNumerals.State  = cbChecked then Inc( aSize );
-  if ckSpecial.State   = cbChecked then Inc( aSize );
+  if ckLowerCase.State = cbChecked then begin
+    Inc( aSize );
+  end;
+  if ckUpperCase.State = cbChecked then begin
+    Inc( aSize );
+  end;
+  if ckNumerals.State = cbChecked then begin
+    Inc( aSize );
+  end;
+  if ckSpecial.State = cbChecked then begin
+    Inc( aSize );
+  end;
 
   if aSize > FMaxLength then begin
     QuestionDlg( Caption, format( ERR_MAXTOSMALL, [FMaxLength] ), mtWarning, [mrCancel], '' );
@@ -491,7 +530,7 @@ begin
     seLength.Update;
   end;
 
-  Attempts := 0;
+  Attempts         := 0;
   ebPassword1.Text := '';
   ebPassword1.Update;
   ebPassword2.Text := '';
@@ -520,8 +559,12 @@ begin
     aPassword := '';
     while aPassword.Length < seLength.Value do begin
       CH := ALPHABET[random( length( ALPHABET ) ) + 1];
-      if ckSimilar.Checked and ( Pos( CH, SIMILAR ) > 0 ) then Continue;
-      if ckAmbiguous.Checked and ( Pos( CH, AMBIGUOUS ) > 0 ) then Continue;
+      if ckSimilar.Checked and ( Pos( CH, SIMILAR ) > 0 ) then begin
+        Continue;
+      end;
+      if ckAmbiguous.Checked and ( Pos( CH, AMBIGUOUS ) > 0 ) then begin
+        Continue;
+      end;
       aPassword := aPassword + CH;
     end;
 
@@ -545,16 +588,16 @@ begin
     ebPassword1.PasswordChar := '#';
   end;
 
-  ValidatePasswords(Sender);
+  ValidatePasswords( Sender );
 end;
 
-procedure TPasswordChangeDialog.ebPassword1KeyUp( Sender: TObject; var Key: Word; Shift: TShiftState);
+procedure TPasswordChangeDialog.ebPassword1KeyUp( Sender: TObject; var Key: word; Shift: TShiftState );
 begin
   if Key = VK_RETURN then begin
     if ValidPassword( ebPassword1.Text ) then begin
       ebPassword2.SetFocus;
     end else begin
-      QuestionDlg( ERR_INVALIDPW, ERR_NOTCOMPLEX, mtWarning, [mrOK], '' );
+      QuestionDlg( ERR_INVALIDPW, ERR_NOTCOMPLEX, mtWarning, [mrOk], '' );
       Key := 0;
     end;
   end;
@@ -571,16 +614,16 @@ begin
     ebPassword2.PasswordChar := '#';
   end;
 
-  ValidatePasswords(Sender);
+  ValidatePasswords( Sender );
 end;
 
-procedure TPasswordChangeDialog.ebPassword2KeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+procedure TPasswordChangeDialog.ebPassword2KeyUp( Sender: TObject; var Key: word; Shift: TShiftState );
 begin
   if Key = VK_RETURN then begin
     if ValidPassword( ebPassword2.Text ) then begin
       bbOKClick( Sender );
     end else begin
-      QuestionDlg( ERR_INVALIDPW, ERR_NOTCOMPLEX, mtWarning, [mrOK], '' );
+      QuestionDlg( ERR_INVALIDPW, ERR_NOTCOMPLEX, mtWarning, [mrOk], '' );
     end;
     Key := 0;
   end;

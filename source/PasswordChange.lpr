@@ -3,27 +3,28 @@ program PasswordChange;
 {$mode objfpc}{$H+}
 
 uses
-  {$IFDEF UNIX}
+ {$IFDEF UNIX}
   cthreads,
-  {$ENDIF}
-  {$IFDEF HASAMIGA}
+   {$ENDIF} {$IFDEF HASAMIGA}
   athreads,
-  {$ENDIF}
+   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  sysutils, Forms, controls, dialogs,
-  PasswordDialog
-  { you can add units after this };
+  SysUtils,
+  Forms,
+  Controls,
+  Dialogs,
+  PasswordDialog { you can add units after this };
 
 {$R *.res}
 
 var
-  UserID: string;
-  NewPassword: string;
+  UserID:         string;
+  NewPassword:    string;
   ChangeRequired: boolean;
 
 begin
-  RequireDerivedFormResource:=True;
-  Application.Scaled:=True;
+  RequireDerivedFormResource := True;
+  Application.Scaled         := True;
   Application.Initialize;
   //Application.CreateForm(TPasswordChangeDialog, PasswordChangeDialog);
   //Application.ProcessMessages;
@@ -70,4 +71,3 @@ begin
 
   //Application.Run;
 end.
-
