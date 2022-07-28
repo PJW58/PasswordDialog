@@ -15,33 +15,28 @@
  
  2. <[IconDB](https://IconsDB.com)> CC0 1.0 Universal Public Domain Dedication.
  
-<img src="./img/changedialog.png">   <img src="./img/resetdialog.png">
+<img src="./img/changedialog.png">
+<img src="./img/resetdialog.png">
    
 Usage:
 
 The easiest way to use these dialogs is to simply call using two Quick Call functions provided.
-The defaults will be used for all pasword difficulty requirements.
+The defaults will be used for all password difficulty requirements.
 
 ```Pascal
-Result := PCD_PasswordReset( Parent, UserID, NewPassword, ChangeRequired );
-if Result = mrok then ...
+OK := PCD_PasswordReset( Parent, UserID, NewPassword, ChangeRequired );
+if OK = mrok then ...
 ```
 
 ```Pascal
-Result := PCD_PasswordChange( Parent, UserID, NewPassword);
-if Result = mrok then ...
+OK := PCD_PasswordChange( Parent, UserID, NewPassword);
+if OK = mrok then ...
 ```
 
 If you need more control
    
 ```Pascal
- function ResetPassword(
-   const UserID: string;
-   out   NewPassword: string;
-   out   RequireReset: boolean): TModalResult;
- 
- begin
-  PasswordChangeDialog := TPasswordChangeDialog.Create( nil );
+  PasswordChangeDialog := TPasswordChangeDialog.Create( Parent );
   try
     // All of the parameters except for Salt are optional
     // Each has a default, which may or may not suit your needs
@@ -62,24 +57,31 @@ If you need more control
 
       Result := ShowModal;
       if Result = mrOK then begin
-        NewPassword  := HashedPassword;
-        RequireReset := RequirePasswordChange
+	  {-- or whatever you need to do here!
+        User.Password           := HashedPassword;
+        User.PasswordExpired    := RequirePasswordChange;
+        User.LastPasswordChange := now();
+        User.Save;
+      --}
       end;
     end;
   finally
     FreeAndNil( PasswordChangeDialog );
   end;
-end;
 ```
 or for a quicky password change
 
 ```pascal
-PasswordChangeDialog := TPasswordChangeDialog.Create( nil );
+PasswordChangeDialog := TPasswordChangeDialog.Create( Parent );
 try
   PasswordChangeDialog.Mode := pcm_Change; // pcm_Reset or pcm_Change
   PasswordChangeDialog.Salt := UserID;     // Usually the UserID, but you can get creative...
   if PasswordChangeDialog.ModalResult = mrOK then begin
-    NewPassword := PasswordChangeDialog.HashedPassword;	  
+  {-- or whatever you need to do here!
+    User.Password := PasswordChangeDialog.HashedPassword;
+    User.LastPasswordChange := now();
+    User.Save;
+  --}
   end;
 finally
   freeandnil(PasswordChangeDialog);
