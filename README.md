@@ -17,7 +17,23 @@
  
 <img src="./img/changedialog.png">   <img src="./img/resetdialog.png">
    
-Usage: 
+Usage:
+
+The easiest way to use these dialogs is to simply call using two Quick Call functions provided.
+The defaults will be used for all pasword difficulty requirements.
+
+```Pascal
+Result := PCD_PasswordReset( Parent, UserID, NewPassword, ChangeRequired );
+if Result = mrok then ...
+```
+
+```Pascal
+Result := PCD_PasswordChange( Parent, UserID, NewPassword);
+if Result = mrok then ...
+```
+
+If you need more control
+   
 ```Pascal
  function ResetPassword(
    const UserID: string;
@@ -69,13 +85,6 @@ finally
   freeandnil(PasswordChangeDialog);
 end;
 ```
-
-or if you really want a quick change
-
-```Pascal
-Result := PCD_PasswordChange( Parent, UserID, NewPassword);
-if Result = mrok ......
-'''
 
 Explanation of Parameters
 

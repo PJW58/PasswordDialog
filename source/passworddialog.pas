@@ -136,6 +136,7 @@ var
 
 // Some simple use cases to simply use (uses default setting)
 function PCD_PasswordChange( Parent: TComponent; const UserID: string; out NewPassword: string ): TModalResult;
+function PCD_PasswordReset(  Parent: TComponent; const UserID: string; out NewPassword: string; out ChangeRequired: boolean): TModalResult;
 
 implementation
 
@@ -165,17 +166,21 @@ resourcestring
 | ImageList Constants                                                          |
 |==============================================================================}
 const
-  image_ClipBoardFull  = 0;
-  image_ClipboardEmpty = 1;
-  image_Lock           = 2;
-  image_CancelFilled   = 3;
-  image_CancelCircle   = 4;
-  image_OKFilled       = 5;
-  image_OKCircle       = 6;
-  image_EyeInvisible   = 7;
-  image_EyeVisible     = 8;
+  IMAGE_CLIPBOARDFULL  = 0;
+  IMAGE_CLIPBOARDEMPTY = 1;
+  IMAGE_LOCK           = 2;
+  IMAGE_CANCELFILLED   = 3;
+  IMAGE_CANCELCIRCLE   = 4;
+  IMAGE_OKFILLED       = 5;
+  IMAGE_OKCIRCLE       = 6;
+  IMAGE_EYEINVISIBLE   = 7;
+  IMAGE_EYEVISIBLE     = 8;
 
-function PCD_PasswordChange( Parent: TComponent; const UserID: string; out NewPassword: string ): TModalResult;
+function PCD_PasswordChange(
+  Parent: TComponent;
+  const UserID: string;
+  out NewPassword: string
+): TModalResult;
 begin
   PasswordChangeDialog := TPasswordChangeDialog.Create( Parent );
   try
@@ -186,6 +191,31 @@ begin
     if Result = mrOK
       then NewPassword := PasswordChangeDialog.HashedPassword
       else NewPassword := '';
+  finally
+    freeandnil(PasswordChangeDialog);
+  end;
+end;
+
+function PCD_PasswordReset(
+  Parent: TComponent;
+  const UserID: string;
+  out NewPassword: string;
+  out ChangeRequired: boolean
+): TModalResult;
+begin
+  PasswordChangeDialog := TPasswordChangeDialog.Create( Parent );
+  try
+    PasswordChangeDialog.Mode    := pcm_Reset;
+    PasswordChangeDialog.Caption := CAPTION_RESET + ': ' + UserID;
+    PasswordChangeDialog.Salt    := UserID;
+    Result := PasswordChangeDialog.ShowModal;
+    if Result = mrOK then begin
+      NewPassword    := PasswordChangeDialog.HashedPassword;
+      ChangeRequired := PasswordChangeDialog.RequirePasswordChange;
+    end else begin
+      NewPassword    := '';
+      ChangeRequired := False;
+    end;
   finally
     freeandnil(PasswordChangeDialog);
   end;
@@ -342,7 +372,7 @@ end;
 procedure TPasswordChangeDialog.bbToClipClick( Sender: TObject );
 begin
   Clipboard.AsText := ebPassword1.Text;
-  bbToClip.ImageIndex := image_ClipBoardFull;
+  bbToClip.ImageIndex := IMAGE_CLIPBOARDFULL;
 end;
 
 {==============================================================================|
@@ -356,7 +386,7 @@ begin
   bbOK.Enabled := ValidatePasswords( Sender );
   bbToClip.Enabled := bbOK.Enabled;
   Clipboard.AsText := '';
-  bbToClip.ImageIndex := image_ClipboardEmpty;
+  bbToClip.ImageIndex := IMAGE_CLIPBOARDEMPTY;
 end;
 
 function TPasswordChangeDialog.ValidatePasswords( Sender: TObject ): boolean;
@@ -371,22 +401,22 @@ begin
 
   if Ok1 then begin
     if ebPassword1.PasswordChar <> #0
-      then ebPassword1.ImageIndex := image_OKCircle
-      else ebPassword1.ImageIndex := image_OKFilled;
+      then ebPassword1.ImageIndex := IMAGE_OKCIRCLE
+      else ebPassword1.ImageIndex := IMAGE_OKFILLED;
   end else begin
     if ebPassword1.PasswordChar <> #0
-      then ebPassword1.ImageIndex := image_EyeInvisible
-      else ebPassword1.ImageIndex := image_EyeVisible;
+      then ebPassword1.ImageIndex := IMAGE_EYEINVISIBLE
+      else ebPassword1.ImageIndex := IMAGE_EYEVISIBLE;
   end;
 
   if Ok2 then begin
     if ebPassword2.PasswordChar <> #0
-      then ebPassword2.ImageIndex := image_OKCircle
-      else ebPassword2.ImageIndex := image_OKFilled;
+      then ebPassword2.ImageIndex := IMAGE_OKCIRCLE
+      else ebPassword2.ImageIndex := IMAGE_OKFILLED;
   end else begin
     if ebPassword2.PasswordChar <> #0
-      then ebPassword2.ImageIndex := image_EyeInvisible
-      else ebPassword2.ImageIndex := image_EyeVisible;
+      then ebPassword2.ImageIndex := IMAGE_EYEINVISIBLE
+      else ebPassword2.ImageIndex := IMAGE_EYEVISIBLE;
   end;
 
   result := OK1 and OK2 and ( ebPassword1.Text = ebPassword2.Text );
