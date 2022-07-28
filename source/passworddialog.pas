@@ -13,6 +13,7 @@ uses
 {==============================================================================|
 | LCL: Units provided as part of the Lazarus Component Library                 |
 |==============================================================================}
+  LCLType,                // (LCL) Windows Controls
   Forms,                  // (LCL) Forms Unit
   Buttons,                // (LCL) Button Components
   Clipbrd,                // (LCL) Clipboard Controls
@@ -83,13 +84,16 @@ type
     procedure ebPassword1ButtonClick( Sender: TObject );
     procedure ebPassword2ButtonClick( Sender: TObject );
     procedure seLengthChange        ( Sender: TObject );
+    procedure ebPassword1KeyUp      ( Sender: TObject; var Key: Word; Shift: TShiftState );
+    procedure ebPassword2KeyUp      ( Sender: TObject; var Key: Word; Shift: TShiftState );
 
     procedure FormCreate            ( Sender: TObject );
     procedure FormShow              ( Sender: TObject );
     procedure FormDblClick          ( Sender: TObject );
     procedure RequirementsChange    ( Sender: TObject );
 
-    function ValidatePassword( Sender: TObject ): boolean;
+    function ValidatePasswords( Sender: TObject ): boolean;
+    function ValidPassword( aValue: string ): boolean;
 
   private
     FSalt:          string;   // Salt - Set before calling
@@ -143,11 +147,25 @@ const
   AMBIGUOUS   = ' +-~,;:.{}<>[]()/\''`"';
 
 resourcestring
-  ERR_SALTREQUIRED = 'A Salt is required to generate a password';
+  ERR_SALTREQUIRED = 'A Salt is required to generate a password.';
   ERR_NOTYPES      = 'No character types are allowed!';
-  ERR_MAXTOSMALL   = 'Maximum password length of %d is too small to accommodate the other requirements';
-  ERR_TOMUCHTIME   = 'It''s taking longer than expected to derive a password with these requirements';
+  ERR_MAXTOSMALL   = 'Maximum password length of %d is too small to accommodate the other requirements.';
+  ERR_TOMUCHTIME   = 'It''s taking longer than expected to derive a password with these requirements.';
   ERR_KEEPTRYING   = 'Do you want me to keep trying?';
+  ERR_NOTCOMPLEX   = 'Password entered does not meet minimum complexity requirements.';
+  ERR_NOTTHESAME   = 'Passwords entered are not the same.';
+  ERR_INVALIDPW    = 'Invalid Password';
+
+const
+  image_ClipBoardFull  = 0;
+  image_ClipboardEmpty = 1;
+  image_Lock           = 2;
+  image_CancelFilled   = 3;
+  image_CancelCircle   = 4;
+  image_OKFilled       = 5;
+  image_OKCircle       = 6;
+  image_EyeInvisible   = 7;
+  image_EyeVisible     = 8;
 
 { TPasswordChangeDialog }
 
@@ -281,8 +299,13 @@ end;
 |==============================================================================}
 procedure TPasswordChangeDialog.bbOKClick( Sender: TObject );
 begin
-  FPassword      := GeneratePKDF2( FSalt, ebPassword1.Text, FIterations );
-  FRequireChange := cbRequireChange.Checked;
+  if ValidatePasswords( Sender ) then begin
+    FPassword      := GeneratePKDF2( FSalt, ebPassword1.Text, FIterations );
+    FRequireChange := cbRequireChange.Checked;
+  end else begin
+    QuestionDlg( ERR_INVALIDPW, ERR_NOTTHESAME, mtWarning, [mrOK], '' );
+    ModalResult := mrNone;
+  end;
 end;
 
 {==============================================================================|
@@ -293,6 +316,7 @@ end;
 procedure TPasswordChangeDialog.bbToClipClick( Sender: TObject );
 begin
   Clipboard.AsText := ebPassword1.Text;
+  bbToClip.ImageIndex := image_ClipBoardFull;
 end;
 
 {==============================================================================|
@@ -303,28 +327,57 @@ end;
 |==============================================================================}
 procedure TPasswordChangeDialog.RequirementsChange( Sender: TObject );
 begin
-  bbOK.Enabled := ValidatePassword( Sender );
+  bbOK.Enabled := ValidatePasswords( Sender );
   bbToClip.Enabled := bbOK.Enabled;
-  if bbToClip.Enabled
-    then bbToClip.ImageIndex := 0
-    else bbToClip.ImageIndex := 1;
+  Clipboard.AsText := '';
+  bbToClip.ImageIndex := image_ClipboardEmpty;
+end;
+
+function TPasswordChangeDialog.ValidatePasswords( Sender: TObject ): boolean;
+
+var
+  Ok1: boolean;
+  Ok2: boolean;
+
+begin
+  Ok1 := ValidPassword( ebPassword1.Text ) ;
+  Ok2 := ValidPassword( ebPassword2.Text ) ;
+
+  if Ok1 then begin
+    if ebPassword1.PasswordChar <> #0
+      then ebPassword1.ImageIndex := image_OKCircle
+      else ebPassword1.ImageIndex := image_OKFilled;
+  end else begin
+    if ebPassword1.PasswordChar <> #0
+      then ebPassword1.ImageIndex := image_EyeInvisible
+      else ebPassword1.ImageIndex := image_EyeVisible;
+  end;
+
+  if Ok2 then begin
+    if ebPassword2.PasswordChar <> #0
+      then ebPassword2.ImageIndex := image_OKCircle
+      else ebPassword2.ImageIndex := image_OKFilled;
+  end else begin
+    if ebPassword2.PasswordChar <> #0
+      then ebPassword2.ImageIndex := image_EyeInvisible
+      else ebPassword2.ImageIndex := image_EyeVisible;
+  end;
+
+  result := OK1 and OK2 and ( ebPassword1.Text = ebPassword2.Text );
 end;
 
 {==============================================================================|
-| ValidatePassword: Validate password based on settings                        |
+| ValidPassword: Validate password based on settings                           |
 |------------------------------------------------------------------------------|
-| Verify that the entered passwords match complexity criteria selected         |
+| Verify that the entered password matches complexity criteria selected        |
 |==============================================================================}
-function TPasswordChangeDialog.ValidatePassword( Sender: TObject ): boolean;
+function TPasswordChangeDialog.ValidPassword( aValue: string ): boolean;
 
 var
   ok:     boolean;
-  aValue: string;
 
 begin
-  aValue := ebPassword1.Text;
-  ok     := ( ebPassword1.Text = ebPassword2.Text );
-  ok     := ok and ( aValue.Length >= seLength.Value );
+  ok     := ( aValue.Length >= seLength.Value );
   ok     := ok and ( aValue.Length <= FMaxLength );
 
   // if "Required" make it's there!
@@ -420,7 +473,7 @@ begin
     ebPassword1.Text := aPassword;
     ebPassword2.Text := aPassword;
     ebPassword1.Update;
-  until bbOK.Enabled;
+  until ValidPassword( aPassword );
 
   cbRequireChange.Checked := True;
 end;
@@ -430,9 +483,26 @@ end;
 |==============================================================================}
 procedure TPasswordChangeDialog.ebPassword1ButtonClick( Sender: TObject );
 begin
-  if ebPassword1.PasswordChar <> #0
-    then ebPassword1.PasswordChar := #0
-    else ebPassword1.PasswordChar := '#';
+  if ebPassword1.PasswordChar <> #0 then begin
+    ebPassword1.PasswordChar := #0;
+  end else begin
+    ebPassword1.PasswordChar := '#';
+  end;
+
+  ValidatePasswords(Sender);
+end;
+
+procedure TPasswordChangeDialog.ebPassword1KeyUp( Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Key = VK_RETURN then begin
+    if ValidPassword( ebPassword1.Text ) then begin
+      ebPassword2.SetFocus;
+    end else begin
+      QuestionDlg( ERR_INVALIDPW, ERR_NOTCOMPLEX, mtWarning, [mrOK], '' );
+      Key := 0;
+      //ebPassword1.SetFocus;
+    end;
+  end;
 end;
 
 {==============================================================================|
@@ -440,9 +510,26 @@ end;
 |==============================================================================}
 procedure TPasswordChangeDialog.ebPassword2ButtonClick( Sender: TObject );
 begin
-  if ebPassword2.PasswordChar <> #0
-    then ebPassword2.PasswordChar := #0
-    else ebPassword2.PasswordChar := '#';
+  if ebPassword2.PasswordChar <> #0 then begin
+    ebPassword2.PasswordChar := #0;
+  end else begin
+    ebPassword2.PasswordChar := '#';
+  end;
+
+  ValidatePasswords(Sender);
+end;
+
+procedure TPasswordChangeDialog.ebPassword2KeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Key = VK_RETURN then begin
+    if ValidPassword( ebPassword2.Text ) then begin
+      bbOKClick( Sender );
+    end else begin
+      QuestionDlg( ERR_INVALIDPW, ERR_NOTCOMPLEX, mtWarning, [mrOK], '' );
+      Key := 0;
+      //ebPassword2.SetFocus;
+    end;
+  end;
 end;
 
 {==============================================================================|
