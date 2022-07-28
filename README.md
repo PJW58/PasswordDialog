@@ -47,8 +47,8 @@ Usage:
       Result := ShowModal;
       if Result = mrOK then begin
         NewPassword  := HashedPassword;
-		RequireReset := RequirePasswordChange
-      end else begin
+        RequireReset := RequirePasswordChange
+      end;
     end;
   finally
     FreeAndNil( PasswordChangeDialog );
