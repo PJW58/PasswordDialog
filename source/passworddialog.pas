@@ -113,18 +113,18 @@ type
 
   public
     // Write only properties to overide defaults
-    property Salt: string write FSalt;
+    property Salt:       string  write FSalt;
     property Iterations: integer write FIterations;
-    property PwdLength: integer write FPwdLength;
-    property MinLength: integer write FMinLength;
-    property MaxLength: integer write FMaxLength;
-    property Mode: TPasswordChangeMode write FMode;
-    property AlphaUpperCase: TPasswordRequirement write FUpperCase;
-    property AlphaLowerCase: TPasswordRequirement write FLowerCase;
-    property Numerals: TPasswordRequirement write FNumerals;
-    property SpecialCharacters: TPasswordRequirement write FSpecial;
-    property ExcludeSimilar: TPasswordRequirement write FSimilar;
-    property ExcludeAmbiguous: TPasswordRequirement write FAmbiguous;
+    property PwdLength:  integer write FPwdLength;
+    property MinLength:  integer write FMinLength;
+    property MaxLength:  integer write FMaxLength;
+    property Mode:               TPasswordChangeMode  write FMode;
+    property AlphaUpperCase:     TPasswordRequirement write FUpperCase;
+    property AlphaLowerCase:     TPasswordRequirement write FLowerCase;
+    property Numerals:           TPasswordRequirement write FNumerals;
+    property SpecialCharacters:  TPasswordRequirement write FSpecial;
+    property ExcludeSimilar:     TPasswordRequirement write FSimilar;
+    property ExcludeAmbiguous:   TPasswordRequirement write FAmbiguous;
 
     // Read only properties to return Results
     property HashedPassword: string read FPassword;
@@ -214,10 +214,10 @@ begin
     PasswordChangeDialog.Salt := UserID;
     Result := PasswordChangeDialog.ShowModal;
     if Result = mrOk then begin
-      NewPassword  := PasswordChangeDialog.HashedPassword;
+      NewPassword := PasswordChangeDialog.HashedPassword;
       ChangeRequired := PasswordChangeDialog.RequirePasswordChange;
     end else begin
-      NewPassword  := '';
+      NewPassword := '';
       ChangeRequired := False;
     end;
   finally
@@ -593,12 +593,12 @@ begin
     panelButtons.Visible := panelRequirements.Visible;
     panelButtons.Enabled := panelRequirements.Visible;
 
-  if panelRequirements.Visible then begin
-    PasswordChangeDialog.Height := panelMain.Height + panelRequirements.Height + StatusBar1.Height + 8
-  end else begin
-    PasswordChangeDialog.Height := panelMain.Height + StatusBar1.Height + bbOK.Height + 16;
+    if panelRequirements.Visible then begin
+      PasswordChangeDialog.Height := panelMain.Height + panelRequirements.Height + StatusBar1.Height + 8
+    end else begin
+      PasswordChangeDialog.Height := panelMain.Height + StatusBar1.Height + bbOK.Height + 16;
+    end;
   end;
- end;
 end;
 
 {==============================================================================|
