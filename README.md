@@ -90,11 +90,11 @@ end;
 
 Explanation of Parameters
 
--Caption
+- Caption
 
    Caption from Lazarus TForm object
    
--Iterations
+- Iterations
 
    To securely store passwords they should be hashed with a slow hashing function, such as PBKDF2. 
    PBKDF2 is slow because it calls a fast hash function many times.
@@ -103,7 +103,7 @@ Explanation of Parameters
    The general idea is to make it hard on the attacker, but with a minimal delay to the regular user.
    
 
--Salt
+- Salt
 
    Attackers can hash a whole dictionary beforehand and simply compare the hashes with the database. 
    To prevent this, we add a salt to each password hash. 
@@ -115,20 +115,20 @@ Explanation of Parameters
    
    Typically the UserID is used for the Salt. Sometimes additonal characters are also added.
 
--PwdLength
+- PwdLength
 
--MinLength
+- MinLength
 
--MaxLength
+- MaxLength
 
--AlphaUpperCase
+- AlphaUpperCase
 
--AlphaLowerCase
+- AlphaLowerCase
 
--Numerals
+- Numerals
 
--SpecialCharacters
+- SpecialCharacters
 
--ExcludeSimilar
+- ExcludeSimilar
 
--ExcludeAmbiguous
+- ExcludeAmbiguous
