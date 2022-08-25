@@ -23,7 +23,7 @@ uses
   HlpIHashInfo;
 
 function GenerateSHA512 ( UserID, Password: string ): string;
-function GeneratePKDF2  ( UserID, Password: string; Iterations: integer = 65536*8 ): string;
+function GeneratePKDF2  ( UserID, Password: string; Iterations: integer = 127873 ): string;
 
 implementation
 
@@ -37,7 +37,7 @@ begin
   Result := hash.ComputeString(UserID+Password, TEncoding.UTF8).ToString();
 end;
 
-function GeneratePKDF2( UserID, Password: string; Iterations: integer = 65536*8 ): string;
+function GeneratePKDF2( UserID, Password: string; Iterations: integer = 127873 ): string;
 
 var
   BytePassword, ByteSalt: TBytes;

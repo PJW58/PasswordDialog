@@ -96,7 +96,24 @@ Explanation of Parameters
    
 -Iterations
 
+   To securely store passwords they should be hashed with a slow hashing function, such as PBKDF2. 
+   PBKDF2 is slow because it calls a fast hash function many times.
+   The idea is simple, instead of taking just one Hash of the password you repeatedly call hash on the previous result. 
+   This way, the attacker also needs to do many hash calls and brute-forcing the password will become pretty slow.
+   The general idea is to make it hard on the attacker, but with a minimal delay to the regular user.
+   
+
 -Salt
+
+   Attackers can hash a whole dictionary beforehand and simply compare the hashes with the database. 
+   To prevent this, we add a salt to each password hash. 
+   A salt is a random string that is used along with the password in the hash. 
+   The salt is typically stored with the hash, so we can assume the attacker also knows the salt. 
+   Even though it is not secret anymore, it makes sure that the attacker starts his computations from the moment the hashes are leaked, and not before.
+
+   The password and salt should be combined into one hash. A typical way to do this is to use HMAC, which is also what PBKDF2 uses.
+   
+   Typically the UserID is used for the Salt. Sometimes additonal characters are also added.
 
 -PwdLength
 
