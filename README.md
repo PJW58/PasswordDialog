@@ -125,7 +125,7 @@ Explanation of Properties
   
     + AlphaUpperCase, AlphaLowerCase, Numerals, SpecialCharacters: 
 	
-	  Should specific chatacter types be required / allowed
+	  Should specific character types be required / allowed
 	
       |Value|Description|
 	  |-----|-----------|
