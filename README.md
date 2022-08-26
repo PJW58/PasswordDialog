@@ -54,7 +54,7 @@ If you need more control
     // All of the parameters except for Salt are optional
     // Each has a default, which may or may not suit your needs
     with PasswordChangeDialog do 
-	begin
+    begin
       Caption           := 'Password Reset: ' + UserID;
       Mode              := pcm_Reset;    // pcm_Reset or pcm_Change
       Iterations        := 429937;       // Number of Iterations for Hash Routine
