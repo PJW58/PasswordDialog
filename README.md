@@ -103,7 +103,7 @@ finally
 end;
 ```
 
-Explanation of Properties
+## Explanation of Properties
 
 - Caption: string
 
