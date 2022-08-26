@@ -104,6 +104,7 @@ finally
   freeandnil(PasswordChangeDialog);
 end;
 ```
+
 ---
 
 ### Explanation of Properties
@@ -112,7 +113,8 @@ end;
 
    Dialog box caption.
    
----  
+--- 
+ 
 - Iterations: integer
 
    To securely store passwords they should be hashed with a slow hashing function, such as PBKDF2. 
@@ -122,6 +124,7 @@ end;
    The general idea is to make it hard on the attacker, but with a minimal delay to the regular user.
    
 ---
+
 - Salt: string  (REQUIRED)
 
    Attackers can hash a whole dictionary beforehand and simply compare the hashes with the database. 
@@ -133,7 +136,9 @@ end;
    The password and salt should be combined into one hash. A typical way to do this is to use HMAC, which is also what PBKDF2 uses.
    
    Typically the UserID is used for the Salt. Sometimes additonal characters are also added.
+   
 ---
+
 - Password Complexity Properties
 
     + PwdLength: integer - The default length of auto generated passwords
