@@ -57,7 +57,7 @@ If you need more control
 
       Result := ShowModal;
       if Result = mrOK then begin
-        {-- or whatever you need to do here!
+      {-- or whatever you need to do here!
         User.Password           := HashedPassword;
         User.PasswordExpired    := RequirePasswordChange;
         User.LastPasswordChange := now();
