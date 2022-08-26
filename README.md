@@ -117,11 +117,11 @@ Explanation of Parameters
 
 - Password Length Parameters
 
-+ PwdLength:  The default length of auto generated passwords
+    + PwdLength:  The default length of auto generated passwords
 
-+ MinLength:  The minimum length of passwords
+    + MinLength:  The minimum length of passwords
 
-+ MaxLength:  The Maximum length of passwords
+    + MaxLength:  The Maximum length of passwords
   
 - AlphaUpperCase
 
