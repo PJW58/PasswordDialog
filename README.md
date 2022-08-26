@@ -18,7 +18,7 @@
 <img src="./img/changedialog.png">
 <img src="./img/resetdialog.png">
    
-#### Usage:
+### Usage:
 
 The easiest way to use these dialogs is to simply call using two Quick Call functions provided.
 The defaults will be used for all password difficulty requirements.
@@ -46,7 +46,7 @@ begin
 end;
 ```
 
-##### If you need more control
+#### If you need more control
    
 ```Pascal
   PasswordChangeDialog := TPasswordChangeDialog.Create( Parent );
@@ -83,7 +83,7 @@ end;
     FreeAndNil( PasswordChangeDialog );
   end;
 ```
-##### or for a quicky password change
+#### or for a quicky password change
 
 ```pascal
 PasswordChangeDialog := TPasswordChangeDialog.Create( Parent );
