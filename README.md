@@ -53,7 +53,8 @@ If you need more control
   try
     // All of the parameters except for Salt are optional
     // Each has a default, which may or may not suit your needs
-    with PasswordChangeDialog do begin
+    with PasswordChangeDialog do 
+	begin
       Caption           := 'Password Reset: ' + UserID;
       Mode              := pcm_Reset;    // pcm_Reset or pcm_Change
       Iterations        := 429937;       // Number of Iterations for Hash Routine
@@ -89,7 +90,8 @@ PasswordChangeDialog := TPasswordChangeDialog.Create( Parent );
 try
   PasswordChangeDialog.Mode := pcm_Change; // pcm_Reset or pcm_Change
   PasswordChangeDialog.Salt := UserID;     // Usually the UserID, but you can get creative...
-  if PasswordChangeDialog.ModalResult = mrOK then begin
+  if PasswordChangeDialog.ModalResult = mrOK then 
+  begin
   {-- or whatever you need to do here!
     User.Password := PasswordChangeDialog.HashedPassword;
     User.LastPasswordChange := now();
