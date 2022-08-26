@@ -103,12 +103,12 @@ end;
 
 Explanation of Properties
 
-- Caption
+- Caption: string
 
-   Caption from Lazarus TForm object
+   Dialog box caption.
    
 ---  
-- Iterations
+- Iterations: integer
 
    To securely store passwords they should be hashed with a slow hashing function, such as PBKDF2. 
    PBKDF2 is slow because it calls a fast hash function many times.
@@ -117,7 +117,7 @@ Explanation of Properties
    The general idea is to make it hard on the attacker, but with a minimal delay to the regular user.
    
 ---
-- Salt
+- Salt: string
 
    Attackers can hash a whole dictionary beforehand and simply compare the hashes with the database. 
    To prevent this, we add a salt to each password hash. 
@@ -137,7 +137,7 @@ Explanation of Properties
 
     + MaxLength: integer -  The Maximum length of passwords
   
-    + AlphaUpperCase, AlphaLowerCase, Numerals, SpecialCharacters: 
+    + AlphaUpperCase, AlphaLowerCase, Numerals, SpecialCharacters: TPasswordRequirement
 	
 	  Should specific character types be required / allowed
 	
@@ -149,7 +149,11 @@ Explanation of Properties
       |pws_allowed| Characters will be allowed but not required|
       |pws_notallowed| Characters will not be allowed and user cannot change|
 
-- ExcludeSimilar: Should we exclude Characters that look the same. 
+- ExcludeSimilar: TPasswordRequirement
 
-- ExcludeAmbiguous: Should we exclude Characters that can confuse command line utilities or data base scripts.
+  Should we exclude Characters that look the same. 
+
+- ExcludeAmbiguous: TPasswordRequirement
+
+  Should we exclude Characters that can confuse command line utilities or data base scripts.
 
