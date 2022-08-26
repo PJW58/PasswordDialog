@@ -115,12 +115,14 @@ Explanation of Parameters
    
    Typically the UserID is used for the Salt. Sometimes additonal characters are also added.
 
-- PwdLength
+- Password Length Parameters
 
-- MinLength
++ PwdLength:  The default length of auto generated passwords
 
-- MaxLength
++ MinLength:  The minimum length of passwords
 
++ MaxLength:  The Maximum length of passwords
+  
 - AlphaUpperCase
 
 - AlphaLowerCase
