@@ -24,13 +24,26 @@ The easiest way to use these dialogs is to simply call using two Quick Call func
 The defaults will be used for all password difficulty requirements.
 
 ```Pascal
-OK := PCD_PasswordReset( Parent, UserID, NewPassword, ChangeRequired );
-if OK = mrok then ...
+if mrOK = PCD_PasswordReset( Parent, UserID, NewPassword, ChangeRequired ) then
+begin
+{-- or whatever you need to do here!
+  User.Password           := NewPassword;
+  User.PasswordExpired    := ChangeRequired;
+  User.LastPasswordChange := now();
+  User.Save;
+--}
+end;
 ```
 
 ```Pascal
-OK := PCD_PasswordChange( Parent, UserID, NewPassword);
-if OK = mrok then ...
+if mrOK = PCD_PasswordChange( Parent, UserID, NewPassword) then
+begin
+{-- or whatever you need to do here!
+  User.Password           := NewPassword;
+  User.LastPasswordChange := now();
+  User.Save;
+--}
+end;
 ```
 
 If you need more control
@@ -46,7 +59,7 @@ If you need more control
       Iterations        := 429937;       // Number of Iterations for Hash Routine
       Salt              := UserID;       // Usually the UserID, but you can get creative...
       PwdLength         := 12;           // If not specified Default is Minimum Length
-      MinLength         := 1;            // Minimum Password length - Default 8
+      MinLength         := 8;            // Minimum Password length - Default 8
       MaxLength         := 48;           // Maximum Password length - Default 64
       AlphaUpperCase    := pws_required; // Should Upper Case characters be Allowed/Required
       AlphaLowerCase    := pws_yes;      // Should Lower Case characters be Allowed/Required
@@ -94,6 +107,7 @@ Explanation of Properties
 
    Caption from Lazarus TForm object
    
+---  
 - Iterations
 
    To securely store passwords they should be hashed with a slow hashing function, such as PBKDF2. 
@@ -102,7 +116,7 @@ Explanation of Properties
    This way, the attacker also needs to do many hash calls and brute-forcing the password will become pretty slow.
    The general idea is to make it hard on the attacker, but with a minimal delay to the regular user.
    
-
+---
 - Salt
 
    Attackers can hash a whole dictionary beforehand and simply compare the hashes with the database. 
@@ -114,7 +128,7 @@ Explanation of Properties
    The password and salt should be combined into one hash. A typical way to do this is to use HMAC, which is also what PBKDF2 uses.
    
    Typically the UserID is used for the Salt. Sometimes additonal characters are also added.
-
+---
 - Password Complexity Properties
 
     + PwdLength: integer - The default length of auto generated passwords
