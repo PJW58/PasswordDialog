@@ -123,7 +123,9 @@ Explanation of Properties
 
     + MaxLength: integer -  The Maximum length of passwords
   
-    + AlphaUpperCase: Should Upper case Alpha chacters be required
+    + AlphaUpperCase, AlphaLowerCase, Numerals, SpecialCharacters: 
+	
+	  Should specific chatacter types be required / allowed
 	
       |Value|Description|
 	  |-----|-----------|
@@ -132,12 +134,6 @@ Explanation of Properties
       |pws_required| Characters will be required  - user cannot change|
       |pws_allowed| Characters will be allowed but not required|
       |pws_notallowed| Characters will not be allowed and user cannot change|
-
-    + AlphaLowerCase: Should Lower case Alpha chacters be required
-
-    + Numerals: Should Numbers be required
-
-    + SpecialCharacters: Should Special Characters be required
 
 - ExcludeSimilar: Should we exclude Characters that look the same. 
 
