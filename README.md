@@ -88,7 +88,7 @@ finally
 end;
 ```
 
-Explanation of Parameters
+Explanation of Properties
 
 - Caption
 
@@ -115,22 +115,23 @@ Explanation of Parameters
    
    Typically the UserID is used for the Salt. Sometimes additonal characters are also added.
 
-- Password Length Parameters
+- Password Complexity Parameters
 
-    + PwdLength:  The default length of auto generated passwords
+    + PwdLength: integer - The default length of auto generated passwords
 
-    + MinLength:  The minimum length of passwords
+    + MinLength: integer -  The minimum length of passwords
 
-    + MaxLength:  The Maximum length of passwords
+    + MaxLength: integer -  The Maximum length of passwords
   
-- AlphaUpperCase
+    + AlphaUpperCase: Should Upper case Alpha chacters be required
 
-- AlphaLowerCase
+    + AlphaLowerCase: Should Lower case Alpha chacters be required
 
-- Numerals
+    + Numerals: Should Numbers be required
 
-- SpecialCharacters
+    + SpecialCharacters: Should Special Characters be required
 
-- ExcludeSimilar
+- ExcludeSimilar: Should we exclude Characters that look the same. 
 
-- ExcludeAmbiguous
+- ExcludeAmbiguous: Should we exclude Characters that can confuse command line utilities or data base scripts.
+
