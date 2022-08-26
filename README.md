@@ -70,7 +70,8 @@ If you need more control
       ExcludeAmbiguous  := pws_yes;      // Should we exclude characters know to confuse some apps
 
       Result := ShowModal;
-      if Result = mrOK then begin
+      if Result = mrOK then 
+      begin
       {-- or whatever you need to do here!
         User.Password           := HashedPassword;
         User.PasswordExpired    := RequirePasswordChange;
