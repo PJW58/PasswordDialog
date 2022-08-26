@@ -51,7 +51,7 @@ If you need more control
 ```Pascal
   PasswordChangeDialog := TPasswordChangeDialog.Create( Parent );
   try
-    // All of the parameters except for Salt are optional
+    // All of the properties except for Salt are optional
     // Each has a default, which may or may not suit your needs
     with PasswordChangeDialog do 
     begin
@@ -69,8 +69,7 @@ If you need more control
       ExcludeSimilar    := pws_yes;      // Should we exclude characters that look very similar
       ExcludeAmbiguous  := pws_yes;      // Should we exclude characters know to confuse some apps
 
-      Result := ShowModal;
-      if Result = mrOK then 
+      if ShowModal = mrOK then 
       begin
       {-- or whatever you need to do here!
         User.Password           := HashedPassword;
@@ -91,7 +90,7 @@ PasswordChangeDialog := TPasswordChangeDialog.Create( Parent );
 try
   PasswordChangeDialog.Mode := pcm_Change; // pcm_Reset or pcm_Change
   PasswordChangeDialog.Salt := UserID;     // Usually the UserID, but you can get creative...
-  if PasswordChangeDialog.ModalResult = mrOK then 
+  if PasswordChangeDialog.ShowModal = mrOK then 
   begin
   {-- or whatever you need to do here!
     User.Password := PasswordChangeDialog.HashedPassword;
@@ -120,7 +119,7 @@ Explanation of Properties
    The general idea is to make it hard on the attacker, but with a minimal delay to the regular user.
    
 ---
-- Salt: string
+- Salt: string  (REQUIRED)
 
    Attackers can hash a whole dictionary beforehand and simply compare the hashes with the database. 
    To prevent this, we add a salt to each password hash. 
