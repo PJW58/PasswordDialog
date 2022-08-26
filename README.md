@@ -125,13 +125,13 @@ Explanation of Properties
   
     + AlphaUpperCase: Should Upper case Alpha chacters be required
 	
-    |Value|Description|
-	|-----|-----------|
-    |pws_no| Characters will not be required, but user can change|
-    |pws_yes| Characters will be required but user can change|
-    |pws_required| Characters will be required  - user cannot change|
-    |pws_allowed| Characters will be allowed but not required|
-    |pws_notallowed| Characters will not be allowed and user cannot change|
+      |Value|Description|
+	  |-----|-----------|
+      |pws_no| Characters will not be required, but user can change|
+      |pws_yes| Characters will be required but user can change|
+      |pws_required| Characters will be required  - user cannot change|
+      |pws_allowed| Characters will be allowed but not required|
+      |pws_notallowed| Characters will not be allowed and user cannot change|
 
     + AlphaLowerCase: Should Lower case Alpha chacters be required
 
