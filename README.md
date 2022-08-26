@@ -5,8 +5,7 @@
  
 <img src="https://img.shields.io/badge/License-Modified%20LGPL%20with%20Linking%20exception-brightgreen">
 
- Author:  Paul J West
----
+Author:  Paul J West
  
 ### Third Party Libraries:
  
@@ -18,7 +17,6 @@
  
 <img src="./img/changedialog.png">
 <img src="./img/resetdialog.png">
----
    
 ### Usage:
 
@@ -104,8 +102,6 @@ finally
   freeandnil(PasswordChangeDialog);
 end;
 ```
-
----
 
 ### Explanation of Properties
 
