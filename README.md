@@ -57,7 +57,7 @@ If you need more control
 
       Result := ShowModal;
       if Result = mrOK then begin
-	  {-- or whatever you need to do here!
+        {-- or whatever you need to do here!
         User.Password           := HashedPassword;
         User.PasswordExpired    := RequirePasswordChange;
         User.LastPasswordChange := now();
@@ -115,7 +115,7 @@ Explanation of Properties
    
    Typically the UserID is used for the Salt. Sometimes additonal characters are also added.
 
-- Password Complexity Parameters
+- Password Complexity Properties
 
     + PwdLength: integer - The default length of auto generated passwords
 
