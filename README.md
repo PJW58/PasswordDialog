@@ -12,8 +12,11 @@ Author:  Paul J West
  1. Hash Library for Pascal 
     <[wiki](https://wiki.freepascal.org/HashLib4Pascal)>
     <[GitHub](https://github.com/Xor-el/HashLib4Pascal)>
+	(LGPL)
  
- 2. <[IconDB](https://IconsDB.com)> CC0 1.0 Universal Public Domain Dedication.
+ 2. IconDB
+    <[IconDB](https://IconsDB.com)>
+	(CC0 1.0 Universal Public Domain Dedication.)
  
 <img src="./img/changedialog.png">
 <img src="./img/resetdialog.png">
