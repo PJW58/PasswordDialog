@@ -6,8 +6,9 @@
 <img src="https://img.shields.io/badge/License-Modified%20LGPL%20with%20Linking%20exception-brightgreen">
 
  Author:  Paul J West
+---
  
- Third Party Libraries:
+### Third Party Libraries:
  
  1. Hash Library for Pascal 
     <[wiki](https://wiki.freepascal.org/HashLib4Pascal)>
@@ -17,6 +18,7 @@
  
 <img src="./img/changedialog.png">
 <img src="./img/resetdialog.png">
+---
    
 ### Usage:
 
@@ -102,6 +104,7 @@ finally
   freeandnil(PasswordChangeDialog);
 end;
 ```
+---
 
 ### Explanation of Properties
 
